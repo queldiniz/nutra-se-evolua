@@ -1,0 +1,32 @@
+{
+  "nutricao": [
+    {
+      "id": 1,
+      "titulo": "Carboidratos",
+      "imagem": "/img/variedade-de-alergenos-alimentares-comuns-para-pessoas.jpg",
+      "recomendacao": "Necessidade diária: 45-65% da energia diária total.",
+      "fontes": "Grãos integrais, tubérculos, leguminosas.",
+      "funcao": "Principal fonte de energia para o corpo.",
+      "citacao": "Essenciais para o desempenho físico e funções cognitivas."
+    },
+    {
+      "id": 2,
+      "titulo": "Proteína",
+      "imagem": "/img/ingredientes-deliciosos-para-dieta-cetogenica.jpg",
+      "recomendacao": "Necessidade diária: 0,8-1,2g por kg de peso corporal.",
+      "fontes": "Carnes, peixes, ovos, laticínios, quinoa.",
+      "funcao": "Construção e reparação muscular.",
+      "citacao": "Essencial para manutenção da massa muscular e metabolismo"
+    },
+    {
+      "id": 3,
+      "titulo": "Gordura",
+      "imagem": "/img/bom-alimento-para-defesas-contra-doencas.jpg",
+      "recomendacao": "Total: 20-35% da energia diária.",
+      "fontes": "Abacate, Azeite, Oleaginosas, Peixes.",
+      "funcao": "Energia e absorção de vitaminas.",
+      "citacao": "Priorize gorduras insaturadas."
+    }
+  ],
+  "pacientes": []
+}
