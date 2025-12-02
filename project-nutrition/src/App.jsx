@@ -3,6 +3,7 @@ import Header from "./components/Header";
 import Home from "./pages/Home";
 import Alimentos from "./pages/Alimentos";
 import Gestao from "./pages/Gestao";
+import DetalhesPaciente from "./pages/DetalhesPaciente";
 
 function App() {
   return (
@@ -15,6 +16,8 @@ function App() {
         <Route path="/gestao" element={<Gestao />} />
         {/* <Route path="/paciente/:id" element={<DetalhesPaciente />} /> */}
 
+        {/* Rota de Detalhes do Paciente */}
+        <Route path="/paciente/:id" element={<DetalhesPaciente />} />
         {/* Rota 404 */}
         <Route
           path="*"

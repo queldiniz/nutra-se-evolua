@@ -28,5 +28,16 @@
       "citacao": "Priorize gorduras insaturadas."
     }
   ],
-  "pacientes": []
+  "pacientes": [
+    {
+      "id": 1,
+      "nome": "Karen Doe",
+      "idade": 27,
+      "genero": "Feminino",
+      "atividade": "Moderadamente Ativo",
+      "calorias": 2000,
+      "peso": 58,
+      "gordura": 27
+    }
+  ]
 }

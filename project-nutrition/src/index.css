@@ -303,9 +303,10 @@ ul {
 /* Container dos cards com layout em Grid Fixo */
 .card-container {
   display: grid;
-  /* Cria 3 colunas de tamanho igual */
-  grid-template-columns: repeat(3, 1fr);
-  gap: 30px; /* Espaçamento entre os cards */
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 30px;
+  width: 100%;
+  margin-top: 40px;
 }
 
 /* Estilo Individual do Card com a formatação de imagem grande */
@@ -420,10 +421,10 @@ section.pacientes {
   border-top: 1px solid #e9ecef;
 }
 
-#patientsTable th:first-child,
+/* #patientsTable th:first-child,
 #patientsTable td:first-child {
   display: none;
-}
+} */
 
 /* Container principal que cria o layout de duas colunas */
 .pacientes-container {
@@ -571,4 +572,79 @@ footer.rodape p {
   margin: 0;
   font-size: 0.9rem;
   color: #adb5bd;
+}
+
+/* --- SKELETON LOADING ANIMATION --- */
+
+/* CARD do skeleton — agora com altura automática */
+.card-skeleton {
+  width: 100%;
+  height: auto;
+  background-color: #fff;
+  border-radius: 15px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  margin-bottom: 30px;
+}
+
+/* Animação do brilho */
+.skeleton {
+  background-color: #e0e0e0;
+  background-image: linear-gradient(
+    90deg,
+    #e0e0e0 0px,
+    #f8f8f8 40px,
+    #e0e0e0 80px
+  );
+  background-size: 200px 100%;
+  animation: shimmer 1.5s infinite linear;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200px 0;
+  }
+  100% {
+    background-position: 200px 0;
+  }
+}
+
+/* IMAGEM */
+.skeleton-img {
+  width: 100%;
+  height: 200px;
+  flex-shrink: 0;
+}
+
+/* Conteúdo */
+.skeleton-content {
+  padding: 25px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  flex: 1;
+}
+
+/* Título */
+.skeleton-title {
+  width: 70%;
+  height: 35px;
+  border-radius: 6px;
+  margin-bottom: 10px;
+}
+
+/* Linhas */
+.skeleton-line {
+  height: 15px;
+  border-radius: 4px;
+}
+
+/* Bloco final (citação) */
+.skeleton-block-end {
+  width: 100%;
+  height: 60px;
+  margin-top: auto;
+  border-radius: 6px;
 }
