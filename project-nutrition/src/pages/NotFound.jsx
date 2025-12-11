@@ -12,9 +12,7 @@ function NotFound() {
 
       {/* Textos */}
       <h1>Ops! Página não encontrada.</h1>
-      <p>
-        Parece que o ingrediente que você procura não está na nossa receita.
-      </p>
+      <p>Parece que o que você procura não está em nosso site.</p>
 
       {/* Botão de Voltar */}
       <Link to="/" className="btn-voltar">
