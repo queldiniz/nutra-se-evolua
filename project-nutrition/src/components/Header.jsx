@@ -5,12 +5,13 @@ function Header() {
     <header className="cabecalho">
       <div className="container-nav">
         <nav className="nav-menu">
-          {/* Logo ou Título */}
-          <div
-            style={{ fontWeight: "bold", fontSize: "1.2rem", color: "#4c546c" }}
-          >
-            Nutra-se
-          </div>
+          <Link to="/" className="logo-link">
+            <img
+              src="/img/nutrition-icon.jpg"
+              alt="Logo Nutra-se"
+              className="logo-header"
+            />
+          </Link>
 
           <ul className="lista-nao-ordenada">
             <li className="item-lista-cabecalho">

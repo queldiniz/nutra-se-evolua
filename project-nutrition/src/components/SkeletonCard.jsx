@@ -3,7 +3,6 @@ import React from "react";
 function SkeletonCard() {
   return (
     <div className="card-skeleton">
-      {/* Imagem */}
       <div className="skeleton skeleton-img"></div>
 
       <div className="skeleton-content">

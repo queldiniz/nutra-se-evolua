@@ -4,12 +4,12 @@ function ImageSkeleton({ src, alt, className }) {
   const [carregou, setCarregou] = useState(false);
 
   return (
-    // O wrapper herda a classe (tamanho) que você passar onde for usar
+    // O wrapper herda a classe (tamanho)
     <div
       className={`image-wrapper ${className || ""}`}
       style={{ position: "relative", overflow: "hidden" }}
     >
-      {/* 1. O Skeleton (aparece só enquanto não carregou) */}
+      {/* o Skeleton (aparece só enquanto não carregou) */}
       {!carregou && (
         <div
           className="skeleton"
@@ -23,7 +23,7 @@ function ImageSkeleton({ src, alt, className }) {
         ></div>
       )}
 
-      {/* 2. A Imagem Real */}
+      {/*A Imagem Real */}
       <img
         src={src}
         alt={alt}
@@ -31,10 +31,10 @@ function ImageSkeleton({ src, alt, className }) {
         style={{
           width: "100%",
           height: "100%",
-          objectFit: "cover", // Garante que a imagem não estique
+          objectFit: "cover",
           opacity: carregou ? 1 : 0, // Transição de invisível para visível
           transition: "opacity 0.5s ease-in-out", // Efeito suave
-          position: "absolute", // Garante que fique em cima do skeleton
+          position: "absolute",
           top: 0,
           left: 0,
         }}

@@ -5,6 +5,7 @@ import Alimentos from "./pages/Alimentos";
 import Gestao from "./pages/Gestao";
 import DetalhesPaciente from "./pages/DetalhesPaciente";
 import Breadcrumb from "./components/Breadcrumb";
+import NotFound from "./pages/NotFound";
 
 function App() {
   return (
@@ -20,15 +21,7 @@ function App() {
         {/* Rota de Detalhes do Paciente */}
         <Route path="/paciente/:id" element={<DetalhesPaciente />} />
         {/* Rota 404 */}
-        <Route
-          path="*"
-          element={
-            <div style={{ textAlign: "center", marginTop: "50px" }}>
-              <h1>Erro 404</h1>
-              <p>Página não encontrada</p>
-            </div>
-          }
-        />
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </BrowserRouter>
   );

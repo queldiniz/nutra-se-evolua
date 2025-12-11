@@ -9,7 +9,7 @@ function Breadcrumb() {
   // Divide a URL em partes (ex: /paciente/123 vira ["paciente", "123"])
   const pathnames = location.pathname.split("/").filter((x) => x);
 
-  // Dicionário para "traduzir" as rotas para português bonito
+  // Dicionário para traduzir as rotas para português bonito
   const nomesAmigaveis = {
     alimentos: "Guia Nutricional",
     gestao: "Lista de Pacientes",
@@ -19,17 +19,17 @@ function Breadcrumb() {
   return (
     <nav className="breadcrumb">
       <ul className="breadcrumb-list">
-        {/* 1. O primeiro item sempre é a Home */}
+        {/*O primeiro item sempre é a Home */}
         <li>
           <Link to="/">Home</Link>
         </li>
 
-        {/* 2. Loop para criar os outros itens baseado na URL */}
+        {/*cria os outros itens baseado na URL */}
         {pathnames.map((value, index) => {
           const last = index === pathnames.length - 1; // Verifica se é o último item
           const to = `/${pathnames.slice(0, index + 1).join("/")}`; // Reconstrói o link
 
-          // Lógica para não mostrar números (IDs) feios
+          //para não mostrar números (IDs) feios
           let nomeExibicao = nomesAmigaveis[value] || value;
 
           // Se for um número (ID do paciente), muda o texto para "Perfil"

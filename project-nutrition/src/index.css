@@ -715,3 +715,95 @@ footer.rodape p {
   font-weight: 400;
   pointer-events: none;
 }
+
+/* --- HEADER E LOGO --- */
+/* Classe para a imagem do logo */
+.logo-header {
+  height: 50px;
+  width: auto;
+  display: block;
+}
+
+/* Removemos sublinhado caso o Link tente colocar */
+.logo-link {
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+}
+
+/*efeito ao passar o mouse */
+.logo-link:hover {
+  opacity: 0.8;
+}
+
+.logo-link {
+  /* cursor: default -> Faz o mouse continuar sendo a "seta" normal, não a mãozinha */
+  cursor: default !important;
+
+  /* Remove estilos de link */
+  text-decoration: none !important;
+  border-bottom: none !important;
+  display: flex;
+  align-items: center;
+}
+
+/*Remove qualquer efeito ao passar o mouse */
+.logo-link:hover {
+  opacity: 1 !important; /* Garante que não fique transparente */
+  transform: none !important; /* Garante que não mexe */
+  background: none !important;
+}
+
+/* Garante que não tenha linha embaixo*/
+.logo-link::after {
+  display: none !important;
+}
+
+/* --- PÁGINA 404 (NOT FOUND) --- */
+
+.not-found-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh; /* Ocupa pelo menos 60% da altura da tela */
+  text-align: center;
+  padding: 40px 20px;
+  gap: 20px;
+}
+
+.not-found-img {
+  max-width: 400px; /* Limita o tamanho*/
+  width: 100%;
+  height: auto;
+  margin-bottom: 10px;
+}
+
+.not-found-container h1 {
+  font-size: 2.5rem;
+  color: #4c546c; /* Azul do tema */
+  margin-bottom: 10px;
+}
+
+.not-found-container p {
+  font-size: 1.1rem;
+  color: #666;
+  margin-bottom: 20px;
+}
+
+/* Estilo do Botão */
+.btn-voltar {
+  background-color: #4c546c;
+  color: white;
+  padding: 12px 30px;
+  border-radius: 30px; /* Redondo e moderno */
+  font-weight: 600;
+  text-decoration: none; /* Sem sublinhado */
+  transition: transform 0.2s, background-color 0.2s;
+  box-shadow: 0 4px 10px rgba(76, 84, 108, 0.2);
+}
+
+.btn-voltar:hover {
+  background-color: #3a4155;
+  transform: translateY(-2px);
+}
