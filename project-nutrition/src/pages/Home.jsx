@@ -1,3 +1,5 @@
+import ImageSkeleton from "../components/ImageSkeleton";
+
 function Home() {
   return (
     <section className="hero-slider">
@@ -14,9 +16,10 @@ function Home() {
               </h3>
             </div>
             <div className="slide-image">
-              <img
+              <ImageSkeleton
                 src="/img/vista-superior-de-uma-variedade-de-vegetais-em-um-saco-de-papel.jpg"
                 alt="Vegetais saudáveis"
+                className="img-home-custom"
               />
             </div>
           </div>

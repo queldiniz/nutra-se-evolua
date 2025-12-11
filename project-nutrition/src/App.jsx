@@ -4,12 +4,13 @@ import Home from "./pages/Home";
 import Alimentos from "./pages/Alimentos";
 import Gestao from "./pages/Gestao";
 import DetalhesPaciente from "./pages/DetalhesPaciente";
+import Breadcrumb from "./components/Breadcrumb";
 
 function App() {
   return (
     <BrowserRouter>
       <Header />
-
+      <Breadcrumb />
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/alimentos" element={<Alimentos />} />

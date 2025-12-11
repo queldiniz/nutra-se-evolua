@@ -1,8 +1,13 @@
+import ImageSkeleton from "./ImageSkeleton";
 // Recebemos os dados via "props"
 function CardNutrition({ titulo, imagem, recomendacao, fontes, citacao }) {
   return (
     <div className="card">
-      <img src={imagem} alt={titulo} />
+      <ImageSkeleton
+        src={imagem}
+        alt={titulo}
+        className="card-img-wrapper" // Classe para controlar o tamanho
+      />
       <div className="card-content">
         <h2>{titulo}</h2>
         <article>
