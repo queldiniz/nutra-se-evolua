@@ -27,16 +27,89 @@ function Gestao() {
     gordura: "",
   });
 
-  // Estado para controlar o aviso verde
+  const [erros, setErros] = useState({});
   const [mostrarAviso, setMostrarAviso] = useState(false);
+
+  // Cor da Borda
+  const COR_ERRO_BORDA = "rgb(182 64 64 / 49%)";
+
+  // Cor do Texto
+  const COR_ERRO_TEXTO = "#d32f2f";
+
+  // Função para a Borda
+  const getEstiloBorda = (erro) => ({
+    borderColor: erro ? COR_ERRO_BORDA : "",
+    borderWidth: erro ? "2px" : "1px",
+  });
+
+  const validarCampo = (nomeCampo, valor) => {
+    let erro = null;
+
+    switch (nomeCampo) {
+      case "nome":
+        if (!valor || valor.length < 3 || /\d/.test(valor)) {
+          erro = "Insira um nome válido (apenas letras). Ex: Raquel";
+        }
+        break;
+      case "altura":
+        if (!valor || isNaN(valor) || valor < 0.5 || valor > 2.5) {
+          erro = "Use ponto para decimais. Ex: 1.55";
+        }
+        break;
+      case "peso":
+        if (!valor || isNaN(valor) || valor <= 0) {
+          erro = "Insira um peso válido. Ex: 65.5 ou 70";
+        }
+        break;
+      case "idade":
+        if (
+          !valor ||
+          isNaN(valor) ||
+          valor <= 0 ||
+          !Number.isInteger(Number(valor))
+        ) {
+          erro = "A idade deve ser um número inteiro. Ex: 25";
+        }
+        break;
+      default:
+        break;
+    }
+    return erro;
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm({ ...form, [name]: value });
+
+    if (erros[name]) {
+      setErros({ ...erros, [name]: null });
+    }
+  };
+
+  const handleBlur = (e) => {
+    const { name, value } = e.target;
+    const erroEncontrado = validarCampo(name, value);
+    setErros({ ...erros, [name]: erroEncontrado });
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    const novosErros = {};
+    let temErro = false;
+
+    Object.keys(form).forEach((campo) => {
+      const erro = validarCampo(campo, form[campo]);
+      if (erro) {
+        novosErros[campo] = erro;
+        temErro = true;
+      }
+    });
+
+    if (temErro) {
+      setErros(novosErros);
+      return;
+    }
 
     const novoPaciente = {
       id: Date.now(),
@@ -44,8 +117,6 @@ function Gestao() {
     };
 
     setPacientes([...pacientes, novoPaciente]);
-
-    // Limpa o formulário
     setForm({
       nome: "",
       altura: "",
@@ -57,9 +128,9 @@ function Gestao() {
       gordura: "",
     });
 
-    setMostrarAviso(true); // Mostra o aviso
+    setMostrarAviso(true);
     setTimeout(() => {
-      setMostrarAviso(false); // Esconde depois de 3 segundos
+      setMostrarAviso(false);
     }, 3000);
   };
 
@@ -67,6 +138,16 @@ function Gestao() {
     if (window.confirm("Tem certeza que deseja excluir?")) {
       setPacientes(pacientes.filter((p) => p.id !== id));
     }
+  };
+
+  // Objeto de estilo para o TEXTO do erro
+  const estiloErro = {
+    color: COR_ERRO_TEXTO,
+    fontSize: "0.8rem",
+    fontWeight: "bold",
+    marginTop: "-10px",
+    marginBottom: "10px",
+    display: "block",
   };
 
   return (
@@ -90,7 +171,6 @@ function Gestao() {
               {pacientes.map((paciente) => (
                 <tr key={paciente.id}>
                   <td>
-                    {/* IMPORTANTE: Aqui enviamos os dados pelo "state" */}
                     <Link
                       to={`/paciente/${paciente.id}`}
                       state={{ dadosPaciente: paciente }}
@@ -128,40 +208,58 @@ function Gestao() {
         <div className="patient-form">
           <h1>Adicionar Novo Paciente</h1>
           <form id="ntrForm" onSubmit={handleSubmit}>
+            {/* Campo NOME */}
             <input
               type="text"
               name="nome"
               value={form.nome}
               onChange={handleChange}
+              onBlur={handleBlur}
               placeholder="Nome Completo"
               required
+              style={getEstiloBorda(erros.nome)}
             />
+            {erros.nome && <span style={estiloErro}>{erros.nome}</span>}
+
+            {/* Campo ALTURA */}
             <input
-              type="number"
-              step="0.01"
+              type="text"
               name="altura"
               value={form.altura}
               onChange={handleChange}
-              placeholder="Altura (m)"
+              onBlur={handleBlur}
+              placeholder="Altura (m) ex: 1.65"
               required
+              style={getEstiloBorda(erros.altura)}
             />
+            {erros.altura && <span style={estiloErro}>{erros.altura}</span>}
+
+            {/* Campo PESO */}
             <input
               type="number"
               step="0.01"
               name="peso"
               value={form.peso}
               onChange={handleChange}
+              onBlur={handleBlur}
               placeholder="Peso (kg)"
               required
+              style={getEstiloBorda(erros.peso)}
             />
+            {erros.peso && <span style={estiloErro}>{erros.peso}</span>}
+
+            {/* Campo IDADE */}
             <input
               type="number"
               name="idade"
               value={form.idade}
               onChange={handleChange}
+              onBlur={handleBlur}
               placeholder="Idade"
               required
+              style={getEstiloBorda(erros.idade)}
             />
+            {erros.idade && <span style={estiloErro}>{erros.idade}</span>}
 
             <select
               name="genero"
@@ -175,7 +273,6 @@ function Gestao() {
               <option value="Masculino">Masculino</option>
               <option value="Feminino">Feminino</option>
             </select>
-
             <select
               name="atividade"
               value={form.atividade}
@@ -190,7 +287,6 @@ function Gestao() {
               <option value="Moderadamente Ativo">Moderadamente Ativo</option>
               <option value="Muito Ativo">Muito Ativo</option>
             </select>
-
             <input
               type="number"
               name="calorias"
@@ -205,13 +301,12 @@ function Gestao() {
               onChange={handleChange}
               placeholder="% Gordura"
             />
-
             <button type="submit">Salvar Paciente</button>
           </form>
         </div>
       </div>
 
-      {/* COMPONENTE DO AVISO (TOAST) */}
+      {/* TOAST DE SUCESSO */}
       {mostrarAviso && (
         <div
           style={{
