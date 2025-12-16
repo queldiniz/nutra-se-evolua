@@ -1,102 +1,284 @@
-import { useParams, useNavigate, useLocation } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { useLocation, useNavigate, Link } from "react-router-dom";
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  Legend,
+} from "recharts";
 
 function DetalhesPaciente() {
-  const { id } = useParams();
-  const navigate = useNavigate();
   const location = useLocation();
+  const navigate = useNavigate();
 
-  const [paciente, setPaciente] = useState(
-    location.state?.dadosPaciente || null
-  );
+  // Recupera os dados enviados pela página de Gestão
+  const { dadosPaciente } = location.state || {};
 
-  useEffect(() => {
-    // Só busco no servidor se NÃO tiver o paciente ainda
-    if (!paciente) {
-      const buscarPaciente = async () => {
-        try {
-          const resposta = await fetch("/db.json");
-          const dados = await resposta.json();
-          const pacienteEncontrado = dados.pacientes.find(
-            (p) => p.id === parseInt(id)
-          );
-          setPaciente(pacienteEncontrado);
-        } catch (error) {
-          console.error("Erro ao buscar dados:", error);
-        }
-      };
-      buscarPaciente();
-    }
-  }, [id, paciente]);
-
-  // Se não tiver paciente carregado ainda, mostra mensagem
-  if (!paciente) {
+  // Se não tiver dados (acesso direto pela URL), mostra mensagem de erro
+  if (!dadosPaciente) {
     return (
-      <div style={{ padding: "50px", textAlign: "center", color: "#666" }}>
-        <h2>Carregando dados...</h2>
-        <p>Se demorar muito, o paciente pode não existir no banco de dados.</p>
-        <button onClick={() => navigate("/gestao")}>Voltar</button>
+      <div
+        style={{
+          textAlign: "center",
+          marginTop: "50px",
+          fontFamily: "Poppins, sans-serif",
+        }}
+      >
+        <h2 style={{ color: "#4c546c" }}>Nenhum paciente selecionado.</h2>
+        <p>Por favor, selecione um paciente na lista.</p>
+        <Link
+          to="/gestao"
+          style={{
+            display: "inline-block",
+            marginTop: "20px",
+            padding: "10px 20px",
+            backgroundColor: "#4c546c",
+            color: "white",
+            textDecoration: "none",
+            borderRadius: "5px",
+          }}
+        >
+          Voltar para Lista
+        </Link>
       </div>
     );
   }
 
   return (
-    <div className="container-principal" style={{ padding: "40px" }}>
-      <h1>Perfil de {paciente.nome}</h1>
+    <section
+      className="detalhes-container"
+      style={{ padding: "40px 20px", maxWidth: "1200px", margin: "0 auto" }}
+    >
+      {/* --- CABEÇALHO --- */}
+      <div style={{ marginBottom: "30px", textAlign: "center" }}>
+        <h1
+          style={{ color: "#4c546c", fontSize: "2.5rem", marginBottom: "10px" }}
+        >
+          Perfil de {dadosPaciente.nome}
+        </h1>
+        <span
+          style={{
+            backgroundColor: "#e0f2f1",
+            color: "#00695c",
+            padding: "5px 15px",
+            borderRadius: "20px",
+            fontWeight: "bold",
+            fontSize: "0.9rem",
+          }}
+        >
+          Objetivo: {dadosPaciente.objetivo || "Não definido"}
+        </span>
+      </div>
 
+      {/* --- CARD DE DADOS PESSOAIS --- */}
       <div
-        className="card"
-        style={{ maxWidth: "600px", margin: "20px auto", padding: "20px" }}
+        className="card-perfil"
+        style={{
+          backgroundColor: "white",
+          padding: "30px",
+          borderRadius: "15px",
+          boxShadow: "0 4px 15px rgba(0,0,0,0.05)",
+          marginBottom: "30px",
+        }}
       >
+        <h3
+          style={{
+            borderBottom: "2px solid #f0f0f0",
+            paddingBottom: "10px",
+            marginBottom: "20px",
+            color: "#4c546c",
+          }}
+        >
+          Dados Pessoais
+        </h3>
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "1fr 1fr",
+            gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
             gap: "20px",
           }}
         >
           <div>
-            <h3>Dados Pessoais</h3>
-            <p>
-              <strong>Idade:</strong> {paciente.idade} anos
+            <p style={{ margin: "5px 0" }}>
+              <strong>Idade:</strong> {dadosPaciente.idade} anos
             </p>
-            <p>
-              <strong>Gênero:</strong> {paciente.genero}
+            <p style={{ margin: "5px 0" }}>
+              <strong>Gênero:</strong> {dadosPaciente.genero}
             </p>
-            <p>
-              <strong>Atividade:</strong> {paciente.atividade}
+            <p style={{ margin: "5px 0" }}>
+              <strong>Atividade:</strong> {dadosPaciente.atividade}
             </p>
           </div>
           <div>
-            <h3>Metas</h3>
-            <p>
-              <strong>Meta Calórica:</strong> {paciente.calorias || "N/A"} kcal
+            <p style={{ margin: "5px 0" }}>
+              <strong>Meta Calórica:</strong> {dadosPaciente.calorias} kcal
             </p>
-            <p>
-              <strong>Peso Atual:</strong> {paciente.peso} kg
+            <p style={{ margin: "5px 0" }}>
+              <strong>Peso Atual:</strong> {dadosPaciente.peso} kg
             </p>
-            <p>
-              <strong>Gordura:</strong> {paciente.gordura || "N/A"}%
+            <p style={{ margin: "5px 0" }}>
+              <strong>Gordura Atual:</strong>{" "}
+              {dadosPaciente.gordura ? dadosPaciente.gordura + "%" : "-"}
             </p>
           </div>
         </div>
+      </div>
 
+      {/* --- ÁREA DOS GRÁFICOS (LADO A LADO) --- */}
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fit, minmax(450px, 1fr))",
+          gap: "30px",
+        }}
+      >
+        {/* GRÁFICO 1: PESO (AZUL) */}
+        <div
+          style={{
+            backgroundColor: "white",
+            padding: "25px",
+            borderRadius: "15px",
+            boxShadow: "0 4px 15px rgba(0,0,0,0.05)",
+          }}
+        >
+          <h3
+            style={{
+              color: "#4c546c",
+              marginBottom: "20px",
+              textAlign: "center",
+            }}
+          >
+            Evolução do Peso (kg)
+          </h3>
+
+          {dadosPaciente.historico && dadosPaciente.historico.length > 0 ? (
+            <div style={{ width: "100%", height: 300 }}>
+              <ResponsiveContainer>
+                <LineChart
+                  data={dadosPaciente.historico}
+                  margin={{ top: 5, right: 20, bottom: 5, left: 0 }}
+                >
+                  <CartesianGrid stroke="#eee" strokeDasharray="3 3" />
+                  <XAxis dataKey="mes" stroke="#666" />
+                  {/* domain define a escala automática */}
+                  <YAxis
+                    domain={["dataMin - 2", "dataMax + 2"]}
+                    stroke="#4c546c"
+                  />
+                  <Tooltip
+                    contentStyle={{
+                      borderRadius: "10px",
+                      border: "none",
+                      boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+                    }}
+                  />
+                  <Legend />
+                  <Line
+                    type="monotone"
+                    dataKey="peso"
+                    name="Peso (kg)"
+                    stroke="#4c546c"
+                    strokeWidth={4}
+                    dot={{ r: 5, fill: "#4c546c" }}
+                    activeDot={{ r: 7 }}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          ) : (
+            <p style={{ textAlign: "center", color: "#999", padding: "20px" }}>
+              Sem histórico de peso registrado.
+            </p>
+          )}
+        </div>
+
+        {/* GRÁFICO 2: GORDURA (LARANJA) */}
+        <div
+          style={{
+            backgroundColor: "white",
+            padding: "25px",
+            borderRadius: "15px",
+            boxShadow: "0 4px 15px rgba(0,0,0,0.05)",
+          }}
+        >
+          <h3
+            style={{
+              color: "#ff7300",
+              marginBottom: "20px",
+              textAlign: "center",
+            }}
+          >
+            Percentual de Gordura (%)
+          </h3>
+
+          {dadosPaciente.historico &&
+          dadosPaciente.historico.some((h) => h.gordura) ? (
+            <div style={{ width: "100%", height: 300 }}>
+              <ResponsiveContainer>
+                <LineChart
+                  data={dadosPaciente.historico}
+                  margin={{ top: 5, right: 20, bottom: 5, left: 0 }}
+                >
+                  <CartesianGrid stroke="#eee" strokeDasharray="3 3" />
+                  <XAxis dataKey="mes" stroke="#666" />
+                  <YAxis
+                    domain={["dataMin - 1", "dataMax + 1"]}
+                    stroke="#ff7300"
+                  />
+                  <Tooltip
+                    contentStyle={{
+                      borderRadius: "10px",
+                      border: "none",
+                      boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+                    }}
+                  />
+                  <Legend />
+                  <Line
+                    type="monotone"
+                    dataKey="gordura"
+                    name="Gordura (%)"
+                    stroke="#ff7300"
+                    strokeWidth={4}
+                    dot={{ r: 5, fill: "#ff7300" }}
+                    activeDot={{ r: 7 }}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          ) : (
+            <p style={{ textAlign: "center", color: "#999", padding: "20px" }}>
+              Sem histórico de gordura registrado.
+            </p>
+          )}
+        </div>
+      </div>
+
+      {/* --- BOTÃO VOLTAR --- */}
+      <div style={{ marginTop: "40px", textAlign: "center" }}>
         <button
           onClick={() => navigate("/gestao")}
           style={{
-            marginTop: "20px",
-            padding: "10px 20px",
             backgroundColor: "#4c546c",
             color: "white",
             border: "none",
-            borderRadius: "5px",
+            padding: "12px 35px",
+            borderRadius: "30px",
+            fontSize: "1rem",
             cursor: "pointer",
+            fontWeight: "600",
+            boxShadow: "0 4px 10px rgba(76, 84, 108, 0.3)",
+            transition: "transform 0.2s",
           }}
+          onMouseOver={(e) => (e.target.style.transform = "scale(1.05)")}
+          onMouseOut={(e) => (e.target.style.transform = "scale(1)")}
         >
           Voltar para Lista
         </button>
       </div>
-    </div>
+    </section>
   );
 }
 

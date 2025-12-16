@@ -395,6 +395,16 @@ ul {
   border-radius: 0 5px 5px 0;
 }
 
+/* --- Feedback Pacientes--- */
+#patientsTable tbody tr {
+  transition: background-color 0.2s ease;
+  cursor: help; /* Muda o cursor para uma "?" ou seta, indicando que há info extra */
+}
+
+#patientsTable tbody tr:hover {
+  background-color: #e3f2fd; /* Um azul bem clarinho ao passar o mouse */
+}
+
 /* media queries */
 @media (max-width: 992px) {
   /* Em telas médias, muda para 2 colunas */

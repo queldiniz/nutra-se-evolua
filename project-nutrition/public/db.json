@@ -4,40 +4,129 @@
       "id": 1,
       "titulo": "Carboidratos",
       "imagem": "/img/variedade-de-alergenos-alimentares-comuns-para-pessoas.jpg",
-      "recomendacao": "Necessidade diária: 45-65% da energia diária total.",
-      "fontes": "Grãos integrais, tubérculos, leguminosas.",
-      "funcao": "Principal fonte de energia para o corpo.",
-      "citacao": "Essenciais para o desempenho físico e funções cognitivas."
+      "recomendacao": "Necessidade diária: 45-65% da energia total do dia.",
+      "fontes": [
+        "Grãos integrais (aveia, arroz)",
+        "Tubérculos (batata, mandioca)",
+        "Leguminosas (feijão, lentilha)"
+      ],
+      "citacao": "Essenciais para o desempenho físico e para as funções cognitivas."
     },
     {
       "id": 2,
       "titulo": "Proteína",
       "imagem": "/img/ingredientes-deliciosos-para-dieta-cetogenica.jpg",
-      "recomendacao": "Necessidade diária: 0,8-1,2g por kg de peso corporal.",
-      "fontes": "Carnes, peixes, ovos, laticínios, quinoa.",
-      "funcao": "Construção e reparação muscular.",
-      "citacao": "Essencial para manutenção da massa muscular e metabolismo"
+      "recomendacao": "Necessidade diária: 0,8 a 1,2g por kg de peso corporal.",
+      "fontes": [
+        "Carnes, peixes e ovos",
+        "Leguminosas e nozes",
+        "Tofu e proteínas vegetais"
+      ],
+      "citacao": "Essencial para a manutenção da massa muscular e do metabolismo."
     },
     {
       "id": 3,
       "titulo": "Gordura",
       "imagem": "/img/bom-alimento-para-defesas-contra-doencas.jpg",
-      "recomendacao": "Total: 20-35% da energia diária.",
-      "fontes": "Abacate, Azeite, Oleaginosas, Peixes.",
-      "funcao": "Energia e absorção de vitaminas.",
-      "citacao": "Priorize gorduras insaturadas."
+      "recomendacao": "Total: 20-35% da energia diária (Saturada ≤ 10%).",
+      "fontes": [
+        "Abacate e Azeite de Oliva",
+        "Oleaginosas (castanhas)",
+        "Peixes gordos (salmão)"
+      ],
+      "citacao": "Priorize gorduras boas e limite frituras e industrializados."
+    },
+    {
+      "id": 4,
+      "titulo": "Fibras",
+      "imagem": "/img/visao-dos-alergenos-comumente-encontrados-em-graos.jpg",
+      "recomendacao": "Adultos: Consumo ideal de 25g a 35g por dia.",
+      "fontes": [
+        "Aveia, maçã e feijão",
+        "Cereais integrais",
+        "Vegetais diversos"
+      ],
+      "citacao": "Fundamentais para a digestão e prevenção de doenças."
+    },
+    {
+      "id": 5,
+      "titulo": "Frutas",
+      "imagem": "/img/conjunto-de-frutas-tropicais-no-fundo-branco.jpg",
+      "recomendacao": "Porção diária: 2 a 4 porções (aprox. 200-400g).",
+      "fontes": [
+        "Cítricas (Ricas em Vitamina C)",
+        "Vermelhas (Antioxidantes)",
+        "Amarelas e Roxas"
+      ],
+      "citacao": "Fonte natural de vitaminas, minerais e fibras essenciais."
+    },
+    {
+      "id": 6,
+      "titulo": "Vegetais",
+      "imagem": "/img/vegetais-saudaveis-na-mesa-de-madeira.jpg",
+      "recomendacao": "Porção diária: 3 a 5 porções (aprox. 200-300g).",
+      "fontes": [
+        "Folhosos verdes",
+        "Crucíferos (brócolis, couve)",
+        "Vegetais coloridos"
+      ],
+      "citacao": "A base da alimentação saudável e da prevenção de doenças."
     }
   ],
   "pacientes": [
     {
       "id": 1,
-      "nome": "Karen Doe",
+      "nome": "Karen Andrade",
+      "altura": 1.65,
+      "peso": 58,
       "idade": 27,
       "genero": "Feminino",
       "atividade": "Moderadamente Ativo",
       "calorias": 2000,
-      "peso": 58,
-      "gordura": 27
+      "gordura": 27,
+      "objetivo": "Perda de Peso",
+      "historico": [
+        { "mes": "Jan", "peso": 64.0, "gordura": 31.0 },
+        { "mes": "Fev", "peso": 61.5, "gordura": 29.5 },
+        { "mes": "Mar", "peso": 59.0, "gordura": 28.0 },
+        { "mes": "Abr", "peso": 58.0, "gordura": 27.0 }
+      ]
+    },
+    {
+      "id": 2,
+      "nome": "Carlos Silva",
+      "altura": 1.8,
+      "peso": 82,
+      "idade": 32,
+      "genero": "Masculino",
+      "atividade": "Muito Ativo",
+      "calorias": 2800,
+      "gordura": 15,
+      "objetivo": "Hipertrofia",
+      "historico": [
+        { "mes": "Jan", "peso": 75.0, "gordura": 19.0 },
+        { "mes": "Fev", "peso": 77.5, "gordura": 18.0 },
+        { "mes": "Mar", "peso": 79.0, "gordura": 16.5 },
+        { "mes": "Abr", "peso": 82.0, "gordura": 15.0 }
+      ]
+    },
+    {
+      "id": 3,
+      "nome": "Rebeca Diniz",
+      "altura": 1.6,
+      "peso": 55,
+      "idade": 24,
+      "genero": "Feminino",
+      "atividade": "Levemente Ativo",
+      "calorias": 1800,
+      "gordura": 22,
+      "objetivo": "Manutenção",
+      "historico": [
+        { "mes": "Jan", "peso": 56.0, "gordura": 23.0 },
+        { "mes": "Fev", "peso": 55.5, "gordura": 22.5 },
+        { "mes": "Mar", "peso": 54.8, "gordura": 22.2 },
+        { "mes": "Abr", "peso": 55.0, "gordura": 22.0 }
+      ]
     }
   ]
 }

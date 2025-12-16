@@ -1,20 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 
 function Gestao() {
-  const [pacientes, setPacientes] = useState([
-    {
-      id: 1,
-      nome: "Karen Doe",
-      altura: 1.65,
-      peso: 58,
-      idade: 27,
-      genero: "Feminino",
-      atividade: "Moderadamente Ativo",
-      calorias: 2000,
-      gordura: 27,
-    },
-  ]);
+  const [pacientes, setPacientes] = useState([]);
 
   const [form, setForm] = useState({
     nome: "",
@@ -30,13 +18,21 @@ function Gestao() {
   const [erros, setErros] = useState({});
   const [mostrarAviso, setMostrarAviso] = useState(false);
 
-  // Cor da Borda
+  // --- CONSTANTES DE ESTILO ---
   const COR_ERRO_BORDA = "rgb(182 64 64 / 49%)";
-
-  // Cor do Texto
   const COR_ERRO_TEXTO = "#d32f2f";
 
-  // Função para a Borda
+  useEffect(() => {
+    fetch("/db.json")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.pacientes) {
+          setPacientes(data.pacientes);
+        }
+      })
+      .catch((err) => console.error("Erro ao carregar pacientes:", err));
+  }, []);
+
   const getEstiloBorda = (erro) => ({
     borderColor: erro ? COR_ERRO_BORDA : "",
     borderWidth: erro ? "2px" : "1px",
@@ -58,7 +54,7 @@ function Gestao() {
         break;
       case "peso":
         if (!valor || isNaN(valor) || valor <= 0) {
-          erro = "Insira um peso válido. Ex: 65.5 ou 70";
+          erro = "Insira um peso válido. Ex: 65.5";
         }
         break;
       case "idade":
@@ -114,9 +110,12 @@ function Gestao() {
     const novoPaciente = {
       id: Date.now(),
       ...form,
+      historico: [],
+      objetivo: "Manutenção",
     };
 
     setPacientes([...pacientes, novoPaciente]);
+
     setForm({
       nome: "",
       altura: "",
@@ -135,12 +134,11 @@ function Gestao() {
   };
 
   const handleDelete = (id) => {
-    if (window.confirm("Tem certeza que deseja excluir?")) {
+    if (window.confirm("Tem certeza que deseja excluir este paciente?")) {
       setPacientes(pacientes.filter((p) => p.id !== id));
     }
   };
 
-  // Objeto de estilo para o TEXTO do erro
   const estiloErro = {
     color: COR_ERRO_TEXTO,
     fontSize: "0.8rem",
@@ -153,7 +151,7 @@ function Gestao() {
   return (
     <section className="pacientes">
       <div className="pacientes-container">
-        {/* LISTA */}
+        {/* LISTA DE PACIENTES */}
         <div className="patient-list">
           <h1>Lista de Pacientes</h1>
           <table id="patientsTable">
@@ -164,12 +162,14 @@ function Gestao() {
                 <th>Peso</th>
                 <th>Idade</th>
                 <th>Gênero</th>
+                <th>Gordura</th>
                 <th>Ações</th>
               </tr>
             </thead>
             <tbody>
               {pacientes.map((paciente) => (
-                <tr key={paciente.id}>
+                // Atributo 'title' fornece feedback textual (mensagem flutuante) imediato no evento de hover da linha
+                <tr key={paciente.id} title="Visualizar Detalhes do Paciente">
                   <td>
                     <Link
                       to={`/paciente/${paciente.id}`}
@@ -183,6 +183,9 @@ function Gestao() {
                   <td>{paciente.peso} kg</td>
                   <td>{paciente.idade}</td>
                   <td>{paciente.genero}</td>
+
+                  <td>{paciente.gordura ? `${paciente.gordura}%` : "-"}</td>
+
                   <td>
                     <button
                       onClick={() => handleDelete(paciente.id)}
@@ -204,11 +207,10 @@ function Gestao() {
           </table>
         </div>
 
-        {/* FORMULÁRIO */}
+        {/* FORMULÁRIO DE CADASTRO */}
         <div className="patient-form">
           <h1>Adicionar Novo Paciente</h1>
           <form id="ntrForm" onSubmit={handleSubmit}>
-            {/* Campo NOME */}
             <input
               type="text"
               name="nome"
@@ -221,7 +223,6 @@ function Gestao() {
             />
             {erros.nome && <span style={estiloErro}>{erros.nome}</span>}
 
-            {/* Campo ALTURA */}
             <input
               type="text"
               name="altura"
@@ -234,7 +235,6 @@ function Gestao() {
             />
             {erros.altura && <span style={estiloErro}>{erros.altura}</span>}
 
-            {/* Campo PESO */}
             <input
               type="number"
               step="0.01"
@@ -248,7 +248,6 @@ function Gestao() {
             />
             {erros.peso && <span style={estiloErro}>{erros.peso}</span>}
 
-            {/* Campo IDADE */}
             <input
               type="number"
               name="idade"
@@ -273,6 +272,7 @@ function Gestao() {
               <option value="Masculino">Masculino</option>
               <option value="Feminino">Feminino</option>
             </select>
+
             <select
               name="atividade"
               value={form.atividade}
@@ -287,6 +287,7 @@ function Gestao() {
               <option value="Moderadamente Ativo">Moderadamente Ativo</option>
               <option value="Muito Ativo">Muito Ativo</option>
             </select>
+
             <input
               type="number"
               name="calorias"
@@ -301,12 +302,12 @@ function Gestao() {
               onChange={handleChange}
               placeholder="% Gordura"
             />
+
             <button type="submit">Salvar Paciente</button>
           </form>
         </div>
       </div>
 
-      {/* TOAST DE SUCESSO */}
       {mostrarAviso && (
         <div
           style={{
