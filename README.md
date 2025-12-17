@@ -72,3 +72,16 @@ Siga o passo a passo abaixo para rodar o projeto localmente:
 ## 📂 Estrutura do Projeto
 
 A estrutura de pastas do projeto está organizada da seguinte forma:
+```bash
+nutra-se-evolua/
+├── public/
+│   ├── img/             # Imagens utilizadas no slider e layout
+│   └── db.json          # Base de dados simulada (JSON)
+├── src/
+│   ├── components/      # Componentes reutilizáveis (Header, Footer, etc.)
+│   ├── pages/           # Páginas da aplicação (Home, Gestao, DetalhesPaciente)
+│   ├── App.jsx          # Configuração de Rotas e estrutura base
+│   ├── index.css        # Estilos globais e regras de responsividade
+│   └── main.jsx         # Ponto de entrada da aplicação React
+├── package.json         # Lista de dependências do projeto
+└── README.md            # Documentação do projeto
