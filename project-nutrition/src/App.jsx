@@ -6,23 +6,29 @@ import Gestao from "./pages/Gestao";
 import DetalhesPaciente from "./pages/DetalhesPaciente";
 import Breadcrumb from "./components/Breadcrumb";
 import NotFound from "./pages/NotFound";
+import Footer from "./components/Footer";
+import BackToTop from "./components/BackToTop";
 
 function App() {
   return (
     <BrowserRouter>
-      <Header />
-      <Breadcrumb />
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/alimentos" element={<Alimentos />} />
-        <Route path="/gestao" element={<Gestao />} />
-        {/* <Route path="/paciente/:id" element={<DetalhesPaciente />} /> */}
-
-        {/* Rota de Detalhes do Paciente */}
-        <Route path="/paciente/:id" element={<DetalhesPaciente />} />
-        {/* Rota 404 */}
-        <Route path="*" element={<NotFound />} />
-      </Routes>
+      <div
+        style={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}
+      >
+        <Header />
+        <Breadcrumb />
+        <main style={{ flex: 1 }}>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/alimentos" element={<Alimentos />} />
+            <Route path="/gestao" element={<Gestao />} />
+            <Route path="/paciente/:id" element={<DetalhesPaciente />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </main>
+        <Footer />
+        <BackToTop />
+      </div>
     </BrowserRouter>
   );
 }

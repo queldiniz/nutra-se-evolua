@@ -1,4 +1,5 @@
-import { useLocation, useNavigate, Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import {
   LineChart,
   Line,
@@ -11,13 +12,22 @@ import {
 } from "recharts";
 
 function DetalhesPaciente() {
-  const location = useLocation();
+  const { id } = useParams();
   const navigate = useNavigate();
+  const [dadosPaciente, setDadosPaciente] = useState(null);
 
-  // Recupera os dados enviados pela página de Gestão
-  const { dadosPaciente } = location.state || {};
+  useEffect(() => {
+    fetch("/db.json")
+      .then((res) => res.json())
+      .then((data) => {
+        const pacienteEncontrado = data.pacientes.find(
+          (p) => p.id === Number(id)
+        );
+        setDadosPaciente(pacienteEncontrado);
+      })
+      .catch((error) => console.error("Erro ao buscar dados:", error));
+  }, [id]);
 
-  // Se não tiver dados (acesso direto pela URL), mostra mensagem de erro
   if (!dadosPaciente) {
     return (
       <div
@@ -27,8 +37,10 @@ function DetalhesPaciente() {
           fontFamily: "Poppins, sans-serif",
         }}
       >
-        <h2 style={{ color: "#4c546c" }}>Nenhum paciente selecionado.</h2>
-        <p>Por favor, selecione um paciente na lista.</p>
+        <h2 style={{ color: "#4c546c" }}>
+          Carregando ou Paciente não encontrado...
+        </h2>
+        <p>Verifique se o paciente existe na lista.</p>
         <Link
           to="/gestao"
           style={{
@@ -55,7 +67,12 @@ function DetalhesPaciente() {
       {/* --- CABEÇALHO --- */}
       <div style={{ marginBottom: "30px", textAlign: "center" }}>
         <h1
-          style={{ color: "#4c546c", fontSize: "2.5rem", marginBottom: "10px" }}
+          style={{
+            color: "#4c546c",
+            fontSize: "2.5rem",
+            marginBottom: "10px",
+            wordWrap: "break-word",
+          }}
         >
           Perfil de {dadosPaciente.nome}
         </h1>
@@ -67,6 +84,8 @@ function DetalhesPaciente() {
             borderRadius: "20px",
             fontWeight: "bold",
             fontSize: "0.9rem",
+            display: "inline-block",
+            marginBottom: "10px",
           }}
         >
           Objetivo: {dadosPaciente.objetivo || "Não definido"}
@@ -97,7 +116,7 @@ function DetalhesPaciente() {
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
+            gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))",
             gap: "20px",
           }}
         >
@@ -127,21 +146,24 @@ function DetalhesPaciente() {
         </div>
       </div>
 
-      {/* --- ÁREA DOS GRÁFICOS (LADO A LADO) --- */}
+      {/* --- ÁREA DOS GRÁFICOS (COM ROLAGEM NO MOBILE) --- */}
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(450px, 1fr))",
+          /* Isso permite que os cards fiquem um embaixo do outro no celular */
+          gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
           gap: "30px",
         }}
       >
-        {/* GRÁFICO 1: PESO (AZUL) */}
+        {/* GRÁFICO 1: PESO */}
         <div
           style={{
             backgroundColor: "white",
             padding: "25px",
             borderRadius: "15px",
             boxShadow: "0 4px 15px rgba(0,0,0,0.05)",
+            width: "100%",
+            overflow: "hidden",
           }}
         >
           <h3
@@ -155,38 +177,47 @@ function DetalhesPaciente() {
           </h3>
 
           {dadosPaciente.historico && dadosPaciente.historico.length > 0 ? (
-            <div style={{ width: "100%", height: 300 }}>
-              <ResponsiveContainer>
-                <LineChart
-                  data={dadosPaciente.historico}
-                  margin={{ top: 5, right: 20, bottom: 5, left: 0 }}
-                >
-                  <CartesianGrid stroke="#eee" strokeDasharray="3 3" />
-                  <XAxis dataKey="mes" stroke="#666" />
-                  {/* domain define a escala automática */}
-                  <YAxis
-                    domain={["dataMin - 2", "dataMax + 2"]}
-                    stroke="#4c546c"
-                  />
-                  <Tooltip
-                    contentStyle={{
-                      borderRadius: "10px",
-                      border: "none",
-                      boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
-                    }}
-                  />
-                  <Legend />
-                  <Line
-                    type="monotone"
-                    dataKey="peso"
-                    name="Peso (kg)"
-                    stroke="#4c546c"
-                    strokeWidth={4}
-                    dot={{ r: 5, fill: "#4c546c" }}
-                    activeDot={{ r: 7 }}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
+            /*Wrapper de Rolagem Horizontal */
+            <div
+              style={{
+                width: "100%",
+                overflowX: "auto",
+                paddingBottom: "10px",
+              }}
+            >
+              {/* Força uma largura mínima de 500px para o gráfico não espremer */}
+              <div style={{ minWidth: "500px", height: 300 }}>
+                <ResponsiveContainer>
+                  <LineChart
+                    data={dadosPaciente.historico}
+                    margin={{ top: 5, right: 20, bottom: 5, left: 0 }}
+                  >
+                    <CartesianGrid stroke="#eee" strokeDasharray="3 3" />
+                    <XAxis dataKey="mes" stroke="#666" />
+                    <YAxis
+                      domain={["dataMin - 2", "dataMax + 2"]}
+                      stroke="#4c546c"
+                    />
+                    <Tooltip
+                      contentStyle={{
+                        borderRadius: "10px",
+                        border: "none",
+                        boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+                      }}
+                    />
+                    <Legend />
+                    <Line
+                      type="monotone"
+                      dataKey="peso"
+                      name="Peso (kg)"
+                      stroke="#4c546c"
+                      strokeWidth={4}
+                      dot={{ r: 5, fill: "#4c546c" }}
+                      activeDot={{ r: 7 }}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
             </div>
           ) : (
             <p style={{ textAlign: "center", color: "#999", padding: "20px" }}>
@@ -195,13 +226,15 @@ function DetalhesPaciente() {
           )}
         </div>
 
-        {/* GRÁFICO 2: GORDURA (LARANJA) */}
+        {/* GRÁFICO 2: GORDURA */}
         <div
           style={{
             backgroundColor: "white",
             padding: "25px",
             borderRadius: "15px",
             boxShadow: "0 4px 15px rgba(0,0,0,0.05)",
+            width: "100%",
+            overflow: "hidden",
           }}
         >
           <h3
@@ -216,37 +249,46 @@ function DetalhesPaciente() {
 
           {dadosPaciente.historico &&
           dadosPaciente.historico.some((h) => h.gordura) ? (
-            <div style={{ width: "100%", height: 300 }}>
-              <ResponsiveContainer>
-                <LineChart
-                  data={dadosPaciente.historico}
-                  margin={{ top: 5, right: 20, bottom: 5, left: 0 }}
-                >
-                  <CartesianGrid stroke="#eee" strokeDasharray="3 3" />
-                  <XAxis dataKey="mes" stroke="#666" />
-                  <YAxis
-                    domain={["dataMin - 1", "dataMax + 1"]}
-                    stroke="#ff7300"
-                  />
-                  <Tooltip
-                    contentStyle={{
-                      borderRadius: "10px",
-                      border: "none",
-                      boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
-                    }}
-                  />
-                  <Legend />
-                  <Line
-                    type="monotone"
-                    dataKey="gordura"
-                    name="Gordura (%)"
-                    stroke="#ff7300"
-                    strokeWidth={4}
-                    dot={{ r: 5, fill: "#ff7300" }}
-                    activeDot={{ r: 7 }}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
+            /* Wrapper de Rolagem Horizontal */
+            <div
+              style={{
+                width: "100%",
+                overflowX: "auto",
+                paddingBottom: "10px",
+              }}
+            >
+              <div style={{ minWidth: "500px", height: 300 }}>
+                <ResponsiveContainer>
+                  <LineChart
+                    data={dadosPaciente.historico}
+                    margin={{ top: 5, right: 20, bottom: 5, left: 0 }}
+                  >
+                    <CartesianGrid stroke="#eee" strokeDasharray="3 3" />
+                    <XAxis dataKey="mes" stroke="#666" />
+                    <YAxis
+                      domain={["dataMin - 1", "dataMax + 1"]}
+                      stroke="#ff7300"
+                    />
+                    <Tooltip
+                      contentStyle={{
+                        borderRadius: "10px",
+                        border: "none",
+                        boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+                      }}
+                    />
+                    <Legend />
+                    <Line
+                      type="monotone"
+                      dataKey="gordura"
+                      name="Gordura (%)"
+                      stroke="#ff7300"
+                      strokeWidth={4}
+                      dot={{ r: 5, fill: "#ff7300" }}
+                      activeDot={{ r: 7 }}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
             </div>
           ) : (
             <p style={{ textAlign: "center", color: "#999", padding: "20px" }}>

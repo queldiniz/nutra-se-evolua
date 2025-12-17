@@ -1,27 +1,55 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
 
 function Header() {
+  const [menuAtivo, setMenuAtivo] = useState(false);
+
+  const toggleMenu = () => {
+    setMenuAtivo(!menuAtivo);
+  };
+
+  const fecharMenu = () => {
+    setMenuAtivo(false);
+  };
+
   return (
     <header className="cabecalho">
       <div className="container-nav">
-        <nav className="nav-menu">
-          <Link to="/" className="logo-link">
-            <img
-              src="/img/nutrition-icon.jpg"
-              alt="Logo Nutra-se"
-              className="logo-header"
-            />
-          </Link>
+        {/* LOGO: Agora é uma imagem (Ajuste o nome do arquivo se precisar) */}
+        <Link to="/" className="logo-link" onClick={fecharMenu}>
+          <img
+            src="/img/nutrition-icon.jpg" /* <--- CONFIRA O NOME DO ARQUIVO NA SUA PASTA */
+            style={{ height: "45px", width: "auto", display: "block" }}
+          />
+        </Link>
 
-          <ul className="lista-nao-ordenada">
-            <li className="item-lista-cabecalho">
-              <Link to="/">Home</Link>
+        {/* Botão Hambúrguer */}
+        <div
+          className={`hamburger ${menuAtivo ? "ativo" : ""}`}
+          onClick={toggleMenu}
+        >
+          <span className="bar"></span>
+          <span className="bar"></span>
+          <span className="bar"></span>
+        </div>
+
+        {/* Menu de Navegação */}
+        <nav className={`nav-menu ${menuAtivo ? "ativo" : ""}`}>
+          <ul>
+            <li>
+              <Link to="/" onClick={fecharMenu}>
+                Home
+              </Link>
             </li>
-            <li className="item-lista-cabecalho">
-              <Link to="/alimentos">Alimentos</Link>
+            <li>
+              <Link to="/alimentos" onClick={fecharMenu}>
+                Alimentos
+              </Link>
             </li>
-            <li className="item-lista-cabecalho">
-              <Link to="/gestao">Pacientes</Link>
+            <li>
+              <Link to="/gestao" onClick={fecharMenu}>
+                Pacientes
+              </Link>
             </li>
           </ul>
         </nav>

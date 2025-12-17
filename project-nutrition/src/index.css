@@ -6,7 +6,6 @@
 
 html {
   font-size: 18px;
-
   -ms-text-size-adjust: 100%;
   -webkit-text-size-adjust: 100%;
 }
@@ -20,17 +19,16 @@ body {
   background-color: var(--bgColor-default, var(--color-canvas-default));
 }
 
-/* cabecalho + nav */
+/* --- CABEÇALHO + NAV --- */
 header {
   display: block;
 }
+
 ul {
-  list-style: none; /* remove os pontos */
-  padding: 0; /* tira o recuo lateral */
+  list-style: none;
+  padding: 0;
   margin: 0;
 }
-
-/*  estilo do header e nav */
 
 .cabecalho {
   background-color: #ffffff;
@@ -155,27 +153,24 @@ ul {
   background-color: #444;
 }
 
-/* Section banner */
-/* O container principal que será a "janela" do nosso slider */
+/* --- SECTION BANNER --- */
 .hero-slider {
   position: relative;
   width: 100%;
-  height: 90vh; /* Ocupa 90% da altura da tela */
-  overflow: hidden; /* Esconde os slides que estão fora da "janela" */
-  background-color: #f4f4f4; /* Cor de fundo caso as imagens demorem a carregar */
+  height: 90vh;
+  overflow: hidden;
+  background-color: #f4f4f4;
 }
 
-/* O wrapper que contém todos os slides e que se move */
 .slider-wrapper {
-  display: flex; /* Alinha os slides lado a lado */
+  display: flex;
   width: 100%;
   height: 100%;
-  transition: transform 0.6s ease-in-out; /* Animação suave da transição */
+  transition: transform 0.6s ease-in-out;
 }
 
-/* Cada slide individual */
 .slide {
-  flex: 0 0 100%; /* Garante que cada slide ocupe 100% da largura do container */
+  flex: 0 0 100%;
   width: 100%;
   height: 100%;
   display: flex;
@@ -188,7 +183,7 @@ ul {
   align-items: center;
   justify-content: center;
   width: 90%;
-  max-width: 1200px; /* Largura máxima do conteúdo dentro do slide */
+  max-width: 1200px;
   gap: 40px;
 }
 
@@ -216,7 +211,6 @@ ul {
   margin-top: 20px;
 }
 
-/* Container da imagem e das faixas decorativas */
 .slide-image {
   flex-basis: 50%;
   position: relative;
@@ -242,45 +236,12 @@ ul {
 .slide-image .stripe-color1 {
   background-color: #92a1cd;
 }
+
 .slide-image .stripe-color2 {
   background-color: #bcb285;
 }
 
-/* Botões de Navegação */
-.slider-btn {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  background-color: rgba(0, 0, 0, 0.4);
-  color: white;
-  border: none;
-  padding: 15px;
-  font-size: 24px;
-  cursor: pointer;
-  z-index: 10;
-  border-radius: 50%;
-  width: 50px;
-  height: 50px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background-color 0.3s ease;
-}
-
-.slider-btn:hover {
-  background-color: rgba(0, 0, 0, 0.7);
-}
-
-.prev-btn {
-  left: 30px;
-}
-
-.next-btn {
-  right: 30px;
-}
-
-/* section alimentos - CARDS */
-/* Estilos para a seção de alimentos */
+/* --- SECTION ALIMENTOS - CARDS --- */
 .info-alimentacao {
   width: 100%;
   padding: 60px 20px;
@@ -300,7 +261,6 @@ ul {
   text-align: center;
 }
 
-/* Container dos cards com layout em Grid Fixo */
 .card-container {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -309,13 +269,12 @@ ul {
   margin-top: 40px;
 }
 
-/* Estilo Individual do Card com a formatação de imagem grande */
 .card {
   background-color: #ffffff;
-  border-radius: 15px; /* Bordas arredondadas */
-  overflow: hidden; /* Garante que a imagem não vaze das bordas */
+  border-radius: 15px;
+  overflow: hidden;
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
-  text-align: left; /* Alinha todo o texto à esquerda */
+  text-align: left;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   display: flex;
   flex-direction: column;
@@ -326,20 +285,18 @@ ul {
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
 }
 
-/* estilo imagens dos cards */
 .card img {
-  width: 100%; /* Ocupa toda a largura do card */
-  height: 180px; /* Altura fixa para as imagens */
-  object-fit: cover; /* Garante que a imagem cubra o espaço sem distorcer */
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
   display: block;
 }
 
-/* Conteúdo de Texto do Card */
 .card-content {
   padding: 25px;
   display: flex;
   flex-direction: column;
-  flex-grow: 1; /* Faz esta área ocupar o espaço vertical restante */
+  flex-grow: 1;
 }
 
 .card h2 {
@@ -387,7 +344,7 @@ ul {
   color: #555;
   border-left: 4px solid #8ac26a;
   padding-left: 15px;
-  margin: auto 0 0 0; /* Empurra a citação para o final do card */
+  margin: auto 0 0 0;
   background-color: #f8f9fa;
   padding-top: 10px;
   padding-bottom: 10px;
@@ -395,26 +352,14 @@ ul {
   border-radius: 0 5px 5px 0;
 }
 
-/* --- Feedback Pacientes--- */
-#patientsTable tbody tr {
-  transition: background-color 0.2s ease;
-  cursor: help; /* Muda o cursor para uma "?" ou seta, indicando que há info extra */
-}
-
-#patientsTable tbody tr:hover {
-  background-color: #e3f2fd; /* Um azul bem clarinho ao passar o mouse */
-}
-
-/* media queries */
+/* Media Queries Originais (Apenas Cards) */
 @media (max-width: 992px) {
-  /* Em telas médias, muda para 2 colunas */
   .card-container {
     grid-template-columns: repeat(2, 1fr);
   }
 }
 
 @media (max-width: 768px) {
-  /* Em telas pequenas (celulares), muda para 1 coluna */
   .card-container {
     grid-template-columns: 1fr;
   }
@@ -423,30 +368,21 @@ ul {
     font-size: 2rem;
   }
 }
-/* Estilo geral da seção */
+
+/* --- ESTILO GERAL DA SEÇÃO PACIENTES --- */
 section.pacientes {
   width: 100%;
   padding: 60px 20px;
-  background-color: #f8f9fa; /* Fundo cinza bem claro */
+  background-color: #f8f9fa;
   border-top: 1px solid #e9ecef;
 }
 
-/* #patientsTable th:first-child,
-#patientsTable td:first-child {
-  display: none;
-} */
-
-/* Container principal que cria o layout de duas colunas */
 .pacientes-container {
   max-width: 1500px;
   margin: 0 auto;
-  display: grid;
-  grid-template-columns: 2fr 1fr; /* A tabela ocupa 2/3 e o form 1/3 */
-  gap: 50px; /* Espaço entre as colunas */
-  align-items: flex-start;
+  display: block;
 }
 
-/* Estilos para a coluna da lista (tabela) */
 .patient-list h1,
 .patient-form h1 {
   font-family: "Poppins", sans-serif;
@@ -455,14 +391,13 @@ section.pacientes {
   margin-bottom: 20px;
 }
 
-/* Tabela de pacientes */
 #patientsTable {
   width: 100%;
   border-collapse: collapse;
   background-color: #ffffff;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   border-radius: 8px;
-  overflow: hidden; /* Garante que o border-radius aplique nos cantos da tabela */
+  overflow: hidden;
 }
 
 #patientsTable th,
@@ -478,7 +413,7 @@ section.pacientes {
   color: #495057;
   font-size: 0.9rem;
   text-transform: capitalize;
-  white-space: nowrap; /* Evita que o texto quebre */
+  white-space: nowrap;
 }
 
 #patientsTable tbody tr:nth-child(even) {
@@ -486,10 +421,9 @@ section.pacientes {
 }
 
 #patientsTable tbody tr:hover {
-  background-color: #dbe4f0; /* Destaque ao passar o mouse */
+  background-color: #dbe4f0;
 }
 
-/* Estilos para a coluna do formulário */
 .patient-form {
   background-color: #ffffff;
   padding: 30px;
@@ -499,11 +433,10 @@ section.pacientes {
 
 #ntrForm {
   display: grid;
-  grid-template-columns: 1fr 1fr; /* Duas colunas para os inputs */
+  grid-template-columns: 1fr 1fr;
   gap: 15px;
 }
 
-/* Faz os inputs de nome e calorias ocuparem a largura toda */
 #ntrForm input#name,
 #ntrForm input#calories,
 #ntrForm select#activity_level {
@@ -521,7 +454,7 @@ section.pacientes {
 }
 
 #ntrForm button[type="submit"] {
-  grid-column: 1 / -1; /* Botão ocupa a largura toda */
+  grid-column: 1 / -1;
   background-color: #4c546c;
   color: white;
   font-weight: bold;
@@ -534,7 +467,6 @@ section.pacientes {
   background-color: #3a4155;
 }
 
-/* Estilos para a busca */
 .search-container {
   margin-top: 20px;
   display: flex;
@@ -558,15 +490,15 @@ section.pacientes {
 }
 
 footer.rodape {
-  background-color: #343a40; /* Um cinza escuro mais moderno */
+  background-color: #343a40;
   color: #f8f9fa;
   text-align: center;
   padding: 30px 20px;
   display: flex;
-  flex-direction: column; /* Itens em coluna: imagem em cima, texto embaixo */
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 15px; /* Espaço entre a imagem e o texto */
+  gap: 15px;
 }
 
 footer.rodape img {
@@ -584,9 +516,7 @@ footer.rodape p {
   color: #adb5bd;
 }
 
-/* --- SKELETON LOADING ANIMATION --- */
-
-/* CARD do skeleton — agora com altura automática */
+/* --- SKELETONS --- */
 .card-skeleton {
   width: 100%;
   height: auto;
@@ -599,7 +529,6 @@ footer.rodape p {
   margin-bottom: 30px;
 }
 
-/* Animação do brilho */
 .skeleton {
   background-color: #e0e0e0;
   background-image: linear-gradient(
@@ -616,19 +545,18 @@ footer.rodape p {
   0% {
     background-position: -200px 0;
   }
+
   100% {
     background-position: 200px 0;
   }
 }
 
-/* IMAGEM */
 .skeleton-img {
   width: 100%;
   height: 200px;
   flex-shrink: 0;
 }
 
-/* Conteúdo */
 .skeleton-content {
   padding: 25px;
   display: flex;
@@ -637,7 +565,6 @@ footer.rodape p {
   flex: 1;
 }
 
-/* Título */
 .skeleton-title {
   width: 70%;
   height: 35px;
@@ -645,13 +572,11 @@ footer.rodape p {
   margin-bottom: 10px;
 }
 
-/* Linhas */
 .skeleton-line {
   height: 15px;
   border-radius: 4px;
 }
 
-/* Bloco final (citação) */
 .skeleton-block-end {
   width: 100%;
   height: 60px;
@@ -659,30 +584,27 @@ footer.rodape p {
   border-radius: 6px;
 }
 
-/* --- SKELETON DE IMAGENS UNIVERSAL --- */
 .img-home-custom {
   width: 100%;
   height: 400px;
   border-radius: 15px;
 }
 
-/*Ajuste para a imagem dos CARDS (Alimentos) */
 .card-img-wrapper {
   width: 100%;
-  height: 200px; /* Mesma altura que estava no .card img antes */
+  height: 200px;
   border-radius: 15px 15px 0 0;
 }
 
-/*wrapper genérico */
 .image-wrapper {
   display: block;
-  background-color: transparent; /* Fundo cinza caso o skeleton falhe */
+  background-color: transparent;
 }
 
 /* --- BREADCRUMB --- */
 .breadcrumb {
   max-width: 1200px;
-  margin: 20px auto 0 auto; /* Centraliza e dá margem */
+  margin: 20px auto 0 auto;
   padding: 0 20px;
   font-family: "Poppins", sans-serif;
   font-size: 0.9rem;
@@ -703,7 +625,7 @@ footer.rodape p {
 }
 
 .breadcrumb-list a {
-  color: #4c546c; /* Azul do seu tema */
+  color: #4c546c;
   text-decoration: none;
   font-weight: 500;
   transition: color 0.2s;
@@ -721,69 +643,50 @@ footer.rodape p {
 }
 
 .breadcrumb-list .active {
-  color: #999; /* Cinza para a página atual (não clicável) */
+  color: #999;
   font-weight: 400;
   pointer-events: none;
 }
 
-/* --- HEADER E LOGO --- */
-/* Classe para a imagem do logo */
+/* --- HEADER LOGO --- */
 .logo-header {
   height: 50px;
   width: auto;
   display: block;
 }
 
-/* Removemos sublinhado caso o Link tente colocar */
 .logo-link {
-  text-decoration: none;
-  display: flex;
-  align-items: center;
-}
-
-/*efeito ao passar o mouse */
-.logo-link:hover {
-  opacity: 0.8;
-}
-
-.logo-link {
-  /* cursor: default -> Faz o mouse continuar sendo a "seta" normal, não a mãozinha */
   cursor: default !important;
-
-  /* Remove estilos de link */
   text-decoration: none !important;
   border-bottom: none !important;
   display: flex;
   align-items: center;
 }
 
-/*Remove qualquer efeito ao passar o mouse */
 .logo-link:hover {
-  opacity: 1 !important; /* Garante que não fique transparente */
-  transform: none !important; /* Garante que não mexe */
+  opacity: 1 !important;
+  transform: none !important;
   background: none !important;
 }
 
-/* Garante que não tenha linha embaixo*/
 .logo-link::after {
   display: none !important;
 }
 
-/* --- PÁGINA 404 (NOT FOUND) --- */
-
+/* --- NOT FOUND --- */
 .not-found-container {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-height: 60vh; /* Ocupa pelo menos 60% da altura da tela */
+  min-height: 60vh;
   text-align: center;
   padding: 40px 20px;
   gap: 20px;
 }
 
 .not-found-img {
-  max-width: 400px; /* Limita o tamanho*/
+  max-width: 400px;
   width: 100%;
   height: auto;
   margin-bottom: 10px;
@@ -791,7 +694,7 @@ footer.rodape p {
 
 .not-found-container h1 {
   font-size: 2.5rem;
-  color: #4c546c; /* Azul do tema */
+  color: #4c546c;
   margin-bottom: 10px;
 }
 
@@ -801,14 +704,13 @@ footer.rodape p {
   margin-bottom: 20px;
 }
 
-/* Estilo do Botão */
 .btn-voltar {
   background-color: #4c546c;
   color: white;
   padding: 12px 30px;
-  border-radius: 30px; /* Redondo e moderno */
+  border-radius: 30px;
   font-weight: 600;
-  text-decoration: none; /* Sem sublinhado */
+  text-decoration: none;
   transition: transform 0.2s, background-color 0.2s;
   box-shadow: 0 4px 10px rgba(76, 84, 108, 0.2);
 }
@@ -816,4 +718,222 @@ footer.rodape p {
 .btn-voltar:hover {
   background-color: #3a4155;
   transform: translateY(-2px);
+}
+
+/* =========================================
+   ESTILOS RESPONSIVOS E MOBILE (CORREÇÃO FINAL IMAGENS)
+   ========================================= */
+
+/* 1. Botão Hambúrguer (padrão desktop - escondido) */
+.hamburger {
+  display: none;
+  cursor: pointer;
+  width: 30px;
+  height: 25px;
+  flex-direction: column;
+  justify-content: space-between;
+  z-index: 1100;
+}
+
+.hamburger .bar {
+  display: block;
+  width: 100%;
+  height: 3px;
+  background-color: #333;
+  border-radius: 3px;
+  transition: all 0.3s ease-in-out;
+}
+
+/* 2. Regras para Celulares (max-width: 900px) */
+@media (max-width: 900px) {
+  /* --- MENU RESPONSIVO --- */
+  .hamburger {
+    display: flex;
+  }
+
+  .nav-menu {
+    position: fixed;
+    left: -100%;
+    top: 70px;
+    background-color: #ffffff;
+    width: 100%;
+    height: calc(100vh - 70px);
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding-top: 60px;
+    gap: 40px;
+    transition: 0.3s ease-in-out;
+    box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+  }
+
+  .nav-menu.ativo {
+    left: 0;
+  }
+
+  .nav-menu ul {
+    flex-direction: column;
+    gap: 40px;
+  }
+
+  .nav-menu a {
+    font-size: 1.5rem;
+  }
+
+  .hamburger.ativo .bar:nth-child(1) {
+    transform: translateY(11px) rotate(45deg);
+  }
+
+  .hamburger.ativo .bar:nth-child(2) {
+    opacity: 0;
+  }
+
+  .hamburger.ativo .bar:nth-child(3) {
+    transform: translateY(-11px) rotate(-45deg);
+  }
+
+  /* --- HOME SLIDER (CORREÇÃO DA IMAGEM) --- */
+  .nav-btn {
+    display: none !important;
+  }
+
+  .hero-slider {
+    height: auto !important;
+    min-height: auto !important;
+    padding-bottom: 60px;
+    padding-top: 20px;
+  }
+
+  .hero-slider .slider-content {
+    flex-direction: column !important;
+    gap: 20px !important;
+    text-align: center !important;
+    justify-content: center !important;
+    padding-top: 20px !important;
+  }
+
+  .hero-slider .slide-text {
+    width: 100% !important;
+    padding: 0 20px !important;
+    flex: none !important;
+  }
+
+  /* Container da imagem */
+  .hero-slider .slide-image {
+    width: 100% !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    flex: none !important;
+    height: auto !important;
+    min-height: 250px !important;
+    margin-top: 20px;
+  }
+
+  /* A IMAGEM DO SLIDER */
+  .img-home-custom {
+    display: block !important;
+    width: 85% !important;
+    max-width: 350px !important;
+    height: auto !important;
+    max-height: 300px !important;
+    object-fit: contain !important;
+    border-radius: 30px !important;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15) !important;
+  }
+
+  /* Fontes Reduzidas */
+  .hero-slider h1 {
+    font-size: 2rem !important;
+  }
+
+  .hero-slider h2 {
+    font-size: 1.5rem !important;
+  }
+
+  .hero-slider h3 {
+    font-size: 1rem !important;
+  }
+
+  /* --- SAÚDE MENTAL --- */
+  .mental-health-content {
+    flex-direction: column !important;
+    gap: 20px !important;
+  }
+
+  .mobile-title {
+    font-size: 1.6rem !important;
+    line-height: 1.3 !important;
+    text-align: center;
+    margin-bottom: 20px !important;
+  }
+
+  .mental-health-section p.paragraph {
+    font-size: 0.95rem !important;
+    line-height: 1.5 !important;
+    text-align: justify;
+  }
+
+  /* --- GESTÃO / TABELAS --- */
+  section.pacientes {
+    padding: 20px 10px !important;
+    overflow-x: hidden;
+  }
+
+  .pacientes-container {
+    width: 100% !important;
+    display: block !important;
+  }
+
+  .pacientes-container-flex {
+    flex-direction: column !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    gap: 30px !important;
+  }
+
+  .left-content {
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  .patient-list h1,
+  .patient-form h1 {
+    font-size: 1.5rem !important;
+    text-align: center;
+    word-wrap: break-word;
+  }
+
+  .table-responsive {
+    display: block !important;
+    width: 100% !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    background: white;
+  }
+
+  #patientsTable,
+  table {
+    width: 100% !important;
+    min-width: 600px !important;
+  }
+
+  #patientsTable th,
+  #patientsTable td {
+    padding: 10px 8px !important;
+    font-size: 0.85rem !important;
+    white-space: nowrap;
+  }
+
+  .patient-form {
+    padding: 15px !important;
+    width: 100% !important;
+  }
+
+  #ntrForm {
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+  }
 }
