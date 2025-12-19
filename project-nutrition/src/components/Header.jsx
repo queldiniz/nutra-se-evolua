@@ -15,10 +15,9 @@ function Header() {
   return (
     <header className="cabecalho">
       <div className="container-nav">
-        {/* LOGO: Agora é uma imagem (Ajuste o nome do arquivo se precisar) */}
         <Link to="/" className="logo-link" onClick={fecharMenu}>
           <img
-            src="/img/nutrition-icon.jpg" /* <--- CONFIRA O NOME DO ARQUIVO NA SUA PASTA */
+            src="/img/nutrition-icon.jpg"
             style={{ height: "45px", width: "auto", display: "block" }}
           />
         </Link>

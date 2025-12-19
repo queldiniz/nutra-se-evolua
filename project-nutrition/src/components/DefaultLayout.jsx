@@ -3,7 +3,6 @@ import Breadcrumb from "./Breadcrumb";
 import Footer from "./Footer";
 import BackToTop from "./BackToTop";
 
-// Mudamos o nome da função de LayoutPadrao para DefaultLayout
 function DefaultLayout({ children }) {
   return (
     <div

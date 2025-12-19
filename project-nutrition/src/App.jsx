@@ -1,8 +1,5 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-
-// ATENÇÃO: Atualize o import aqui!
 import DefaultLayout from "./components/DefaultLayout";
-
 import Home from "./pages/Home";
 import Alimentos from "./pages/Alimentos";
 import Gestao from "./pages/Gestao";
@@ -12,7 +9,6 @@ import NotFound from "./pages/NotFound";
 function App() {
   return (
     <BrowserRouter>
-      {/* Atualize o componente aqui também */}
       <DefaultLayout>
         <Routes>
           <Route path="/" element={<Home />} />

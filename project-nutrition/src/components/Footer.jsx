@@ -9,7 +9,7 @@ function Footer() {
         />
 
         <p style={styles.text}>
-          © 2024 Nutra-se e evolua. Todos os direitos reservados.
+          © 2025 Nutra-se e evolua. Todos os direitos reservados.
         </p>
       </div>
     </footer>

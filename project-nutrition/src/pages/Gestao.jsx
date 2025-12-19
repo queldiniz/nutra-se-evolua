@@ -166,7 +166,6 @@ function Gestao() {
           }}
         >
           {/* === ESQUERDA (TABELAS) === */}
-          {/* AJUSTE: Mudei flex de 3 para 2. Isso diminui a tabela e dá espaço pro form */}
           <div
             className="left-content"
             style={{

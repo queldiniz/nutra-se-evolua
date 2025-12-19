@@ -729,7 +729,7 @@ footer.rodape p {
 }
 
 /* =========================================
-   ESTILOS RESPONSIVOS E MOBILE (CORREÇÃO FINAL IMAGENS)
+   ESTILOS RESPONSIVOS E MOBILE
    ========================================= */
 
 /* 1. Botão Hambúrguer (padrão desktop - escondido) */
@@ -800,7 +800,7 @@ footer.rodape p {
     transform: translateY(-11px) rotate(-45deg);
   }
 
-  /* --- HOME SLIDER (CORREÇÃO DA IMAGEM) --- */
+  /* --- HOME SLIDER --- */
   .nav-btn {
     display: none !important;
   }

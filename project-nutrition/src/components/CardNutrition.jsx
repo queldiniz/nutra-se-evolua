@@ -1,5 +1,5 @@
 import ImageSkeleton from "./ImageSkeleton";
-// Recebemos os dados via "props"
+// Aqui os dados são recebidos via props
 function CardNutrition({ titulo, imagem, recomendacao, fontes, citacao }) {
   return (
     <div className="card">

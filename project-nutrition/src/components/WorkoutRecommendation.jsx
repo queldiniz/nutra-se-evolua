@@ -69,7 +69,6 @@ function WorkoutRecommendation({ paciente }) {
       setPlano(recomendacao);
     };
 
-    // --- CHAMADA DA FUNÇÃO ---
     gerarPlano(paciente);
   }, [paciente]); // O efeito roda sempre que o 'paciente' mudar
 
