@@ -15,18 +15,32 @@ function DetalhesPaciente() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [dadosPaciente, setDadosPaciente] = useState(null);
+  const [loading, setLoading] = useState(true);
 
+  // Busca os dados do paciente DE VERDADE no seu Back-End
   useEffect(() => {
-    fetch("/db.json")
-      .then((res) => res.json())
-      .then((data) => {
-        const pacienteEncontrado = data.pacientes.find(
-          (p) => p.id === Number(id)
-        );
-        setDadosPaciente(pacienteEncontrado);
+    fetch(`http://localhost:5000/api/nutrition/${id}`)
+      .then((res) => {
+        if (!res.ok) throw new Error("Paciente não encontrado");
+        return res.json();
       })
-      .catch((error) => console.error("Erro ao buscar dados:", error));
+      .then((data) => {
+        setDadosPaciente(data);
+        setLoading(false);
+      })
+      .catch((error) => {
+        console.error("Erro ao buscar dados:", error);
+        setLoading(false);
+      });
   }, [id]);
+
+  if (loading) {
+    return (
+      <h2 style={{ textAlign: "center", marginTop: "50px", color: "#4c546c" }}>
+        Carregando Perfil...
+      </h2>
+    );
+  }
 
   if (!dadosPaciente) {
     return (
@@ -37,10 +51,7 @@ function DetalhesPaciente() {
           fontFamily: "Poppins, sans-serif",
         }}
       >
-        <h2 style={{ color: "#4c546c" }}>
-          Carregando ou Paciente não encontrado...
-        </h2>
-        <p>Verifique se o paciente existe na lista.</p>
+        <h2 style={{ color: "#4c546c" }}>Paciente não encontrado...</h2>
         <Link
           to="/gestao"
           style={{
@@ -59,6 +70,26 @@ function DetalhesPaciente() {
     );
   }
 
+  // Cria um histórico FALSO apenas para os gráficos não ficarem vazios.
+  // Num projeto futuro, você criaria uma tabela de Histórico no banco!
+  const mockHistorico = [
+    {
+      mes: "Jan",
+      peso: dadosPaciente.weight + 2,
+      gordura: dadosPaciente.body_percentage + 1,
+    },
+    {
+      mes: "Fev",
+      peso: dadosPaciente.weight + 1,
+      gordura: dadosPaciente.body_percentage + 0.5,
+    },
+    {
+      mes: "Atual",
+      peso: dadosPaciente.weight,
+      gordura: dadosPaciente.body_percentage,
+    },
+  ];
+
   return (
     <section
       className="detalhes-container"
@@ -74,7 +105,7 @@ function DetalhesPaciente() {
             wordWrap: "break-word",
           }}
         >
-          Perfil de {dadosPaciente.nome}
+          Perfil de {dadosPaciente.name}
         </h1>
         <span
           style={{
@@ -88,7 +119,8 @@ function DetalhesPaciente() {
             marginBottom: "10px",
           }}
         >
-          Objetivo: {dadosPaciente.objetivo || "Não definido"}
+          {/* AQUI FOI ALTERADO PARA PUXAR DIRETO DO BANCO */}
+          Objetivo: {dadosPaciente.objective || "Não definido"}
         </span>
       </div>
 
@@ -122,35 +154,139 @@ function DetalhesPaciente() {
         >
           <div>
             <p style={{ margin: "5px 0" }}>
-              <strong>Idade:</strong> {dadosPaciente.idade} anos
+              <strong>Idade:</strong> {dadosPaciente.age} anos
             </p>
             <p style={{ margin: "5px 0" }}>
-              <strong>Gênero:</strong> {dadosPaciente.genero}
+              <strong>Gênero:</strong> {dadosPaciente.gender}
             </p>
             <p style={{ margin: "5px 0" }}>
-              <strong>Atividade:</strong> {dadosPaciente.atividade}
+              <strong>Atividade:</strong> {dadosPaciente.activity_level}
             </p>
           </div>
           <div>
             <p style={{ margin: "5px 0" }}>
-              <strong>Meta Calórica:</strong> {dadosPaciente.calorias} kcal
+              <strong>Meta Calórica:</strong> {dadosPaciente.calories} kcal
             </p>
             <p style={{ margin: "5px 0" }}>
-              <strong>Peso Atual:</strong> {dadosPaciente.peso} kg
+              <strong>Peso Atual:</strong> {dadosPaciente.weight} kg
             </p>
             <p style={{ margin: "5px 0" }}>
-              <strong>Gordura Atual:</strong>{" "}
-              {dadosPaciente.gordura ? dadosPaciente.gordura + "%" : "-"}
+              <strong>Gordura Atual:</strong> {dadosPaciente.body_percentage}%
             </p>
           </div>
         </div>
       </div>
 
-      {/* --- ÁREA DOS GRÁFICOS (COM ROLAGEM NO MOBILE) --- */}
+      {/* --- PLANO ALIMENTAR (NOVA SESSÃO) --- */}
+      <div
+        style={{
+          backgroundColor: "white",
+          padding: "30px",
+          borderRadius: "15px",
+          boxShadow: "0 4px 15px rgba(0,0,0,0.05)",
+          marginBottom: "30px",
+        }}
+      >
+        <h3
+          style={{
+            borderBottom: "2px solid #f0f0f0",
+            paddingBottom: "10px",
+            marginBottom: "20px",
+            color: "#4CAF50",
+          }}
+        >
+          Plano Alimentar (Dieta)
+        </h3>
+
+        {!dadosPaciente.refeicoes || dadosPaciente.refeicoes.length === 0 ? (
+          <p
+            style={{ textAlign: "center", color: "#999", fontStyle: "italic" }}
+          >
+            Ainda não há alimentos registrados para este paciente.
+          </p>
+        ) : (
+          <div style={{ overflowX: "auto" }}>
+            <table
+              style={{
+                width: "100%",
+                borderCollapse: "collapse",
+                textAlign: "left",
+              }}
+            >
+              <thead style={{ backgroundColor: "#f8f9fa" }}>
+                <tr>
+                  <th
+                    style={{
+                      padding: "12px",
+                      borderBottom: "2px solid #dee2e6",
+                    }}
+                  >
+                    Alimento
+                  </th>
+                  <th
+                    style={{
+                      padding: "12px",
+                      borderBottom: "2px solid #dee2e6",
+                    }}
+                  >
+                    Calorias
+                  </th>
+                  <th
+                    style={{
+                      padding: "12px",
+                      borderBottom: "2px solid #dee2e6",
+                    }}
+                  >
+                    Carboidratos
+                  </th>
+                  <th
+                    style={{
+                      padding: "12px",
+                      borderBottom: "2px solid #dee2e6",
+                    }}
+                  >
+                    Proteínas
+                  </th>
+                  <th
+                    style={{
+                      padding: "12px",
+                      borderBottom: "2px solid #dee2e6",
+                    }}
+                  >
+                    Gorduras
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {dadosPaciente.refeicoes.map((comida, index) => (
+                  <tr key={index} style={{ borderBottom: "1px solid #eee" }}>
+                    <td
+                      style={{
+                        padding: "12px",
+                        fontWeight: "bold",
+                        color: "#333",
+                      }}
+                    >
+                      {comida.food_name}
+                    </td>
+                    <td style={{ padding: "12px", color: "#e67e22" }}>
+                      {comida.calories} kcal
+                    </td>
+                    <td style={{ padding: "12px" }}>{comida.carbs} g</td>
+                    <td style={{ padding: "12px" }}>{comida.protein} g</td>
+                    <td style={{ padding: "12px" }}>{comida.fat} g</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+
+      {/* --- ÁREA DOS GRÁFICOS (MANTIDA IGUAL, USANDO MOCK) --- */}
       <div
         style={{
           display: "grid",
-          /* Isso permite que os cards fiquem um embaixo do outro no celular */
           gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
           gap: "30px",
         }}
@@ -175,55 +311,42 @@ function DetalhesPaciente() {
           >
             Evolução do Peso (kg)
           </h3>
-
-          {dadosPaciente.historico && dadosPaciente.historico.length > 0 ? (
-            /*Wrapper de Rolagem Horizontal */
-            <div
-              style={{
-                width: "100%",
-                overflowX: "auto",
-                paddingBottom: "10px",
-              }}
-            >
-              {/* Força uma largura mínima de 500px para o gráfico não espremer */}
-              <div style={{ minWidth: "500px", height: 300 }}>
-                <ResponsiveContainer>
-                  <LineChart
-                    data={dadosPaciente.historico}
-                    margin={{ top: 5, right: 20, bottom: 5, left: 0 }}
-                  >
-                    <CartesianGrid stroke="#eee" strokeDasharray="3 3" />
-                    <XAxis dataKey="mes" stroke="#666" />
-                    <YAxis
-                      domain={["dataMin - 2", "dataMax + 2"]}
-                      stroke="#4c546c"
-                    />
-                    <Tooltip
-                      contentStyle={{
-                        borderRadius: "10px",
-                        border: "none",
-                        boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
-                      }}
-                    />
-                    <Legend />
-                    <Line
-                      type="monotone"
-                      dataKey="peso"
-                      name="Peso (kg)"
-                      stroke="#4c546c"
-                      strokeWidth={4}
-                      dot={{ r: 5, fill: "#4c546c" }}
-                      activeDot={{ r: 7 }}
-                    />
-                  </LineChart>
-                </ResponsiveContainer>
-              </div>
+          <div
+            style={{ width: "100%", overflowX: "auto", paddingBottom: "10px" }}
+          >
+            <div style={{ minWidth: "500px", height: 300 }}>
+              <ResponsiveContainer>
+                <LineChart
+                  data={mockHistorico}
+                  margin={{ top: 5, right: 20, bottom: 5, left: 0 }}
+                >
+                  <CartesianGrid stroke="#eee" strokeDasharray="3 3" />
+                  <XAxis dataKey="mes" stroke="#666" />
+                  <YAxis
+                    domain={["dataMin - 2", "dataMax + 2"]}
+                    stroke="#4c546c"
+                  />
+                  <Tooltip
+                    contentStyle={{
+                      borderRadius: "10px",
+                      border: "none",
+                      boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+                    }}
+                  />
+                  <Legend />
+                  <Line
+                    type="monotone"
+                    dataKey="peso"
+                    name="Peso (kg)"
+                    stroke="#4c546c"
+                    strokeWidth={4}
+                    dot={{ r: 5, fill: "#4c546c" }}
+                    activeDot={{ r: 7 }}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
             </div>
-          ) : (
-            <p style={{ textAlign: "center", color: "#999", padding: "20px" }}>
-              Sem histórico de peso registrado.
-            </p>
-          )}
+          </div>
         </div>
 
         {/* GRÁFICO 2: GORDURA */}
@@ -246,55 +369,42 @@ function DetalhesPaciente() {
           >
             Percentual de Gordura (%)
           </h3>
-
-          {dadosPaciente.historico &&
-          dadosPaciente.historico.some((h) => h.gordura) ? (
-            /* Wrapper de Rolagem Horizontal */
-            <div
-              style={{
-                width: "100%",
-                overflowX: "auto",
-                paddingBottom: "10px",
-              }}
-            >
-              <div style={{ minWidth: "500px", height: 300 }}>
-                <ResponsiveContainer>
-                  <LineChart
-                    data={dadosPaciente.historico}
-                    margin={{ top: 5, right: 20, bottom: 5, left: 0 }}
-                  >
-                    <CartesianGrid stroke="#eee" strokeDasharray="3 3" />
-                    <XAxis dataKey="mes" stroke="#666" />
-                    <YAxis
-                      domain={["dataMin - 1", "dataMax + 1"]}
-                      stroke="#ff7300"
-                    />
-                    <Tooltip
-                      contentStyle={{
-                        borderRadius: "10px",
-                        border: "none",
-                        boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
-                      }}
-                    />
-                    <Legend />
-                    <Line
-                      type="monotone"
-                      dataKey="gordura"
-                      name="Gordura (%)"
-                      stroke="#ff7300"
-                      strokeWidth={4}
-                      dot={{ r: 5, fill: "#ff7300" }}
-                      activeDot={{ r: 7 }}
-                    />
-                  </LineChart>
-                </ResponsiveContainer>
-              </div>
+          <div
+            style={{ width: "100%", overflowX: "auto", paddingBottom: "10px" }}
+          >
+            <div style={{ minWidth: "500px", height: 300 }}>
+              <ResponsiveContainer>
+                <LineChart
+                  data={mockHistorico}
+                  margin={{ top: 5, right: 20, bottom: 5, left: 0 }}
+                >
+                  <CartesianGrid stroke="#eee" strokeDasharray="3 3" />
+                  <XAxis dataKey="mes" stroke="#666" />
+                  <YAxis
+                    domain={["dataMin - 1", "dataMax + 1"]}
+                    stroke="#ff7300"
+                  />
+                  <Tooltip
+                    contentStyle={{
+                      borderRadius: "10px",
+                      border: "none",
+                      boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+                    }}
+                  />
+                  <Legend />
+                  <Line
+                    type="monotone"
+                    dataKey="gordura"
+                    name="Gordura (%)"
+                    stroke="#ff7300"
+                    strokeWidth={4}
+                    dot={{ r: 5, fill: "#ff7300" }}
+                    activeDot={{ r: 7 }}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
             </div>
-          ) : (
-            <p style={{ textAlign: "center", color: "#999", padding: "20px" }}>
-              Sem histórico de gordura registrado.
-            </p>
-          )}
+          </div>
         </div>
       </div>
 

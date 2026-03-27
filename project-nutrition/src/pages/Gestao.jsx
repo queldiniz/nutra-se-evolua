@@ -4,6 +4,9 @@ import { Link } from "react-router-dom";
 function Gestao() {
   const [pacientes, setPacientes] = useState([]);
 
+  // URL do seu Back-End Python
+  const API_URL = "http://localhost:5000/api/nutrition";
+
   // Estados para Modal e Feedback
   const [mensagemSucesso, setMensagemSucesso] = useState("");
   const [modalExclusao, setModalExclusao] = useState({ show: false, id: null });
@@ -17,25 +20,24 @@ function Gestao() {
     atividade: "",
     calorias: "",
     gordura: "",
+    objetivo: "",
   });
 
-  useEffect(() => {
-    fetch("/db.json")
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.pacientes) setPacientes(data.pacientes);
-      })
-      .catch((err) => console.error(err));
-  }, []);
-
-  const gerarEstrategia = (p) => {
-    const obj = p.objetivo || "";
-    if (obj.includes("Hipertrofia") || obj.includes("Massa"))
-      return "Treino de Força";
-    if (obj.includes("Perda") || obj.includes("Emagrecimento"))
-      return "Foco em HIIT";
-    return "Manutenção";
+  // 1. GET: Busca os pacientes no Python ao abrir a tela
+  const carregarPacientes = async () => {
+    try {
+      const response = await fetch(`${API_URL}/`);
+      if (!response.ok) throw new Error("Erro ao buscar pacientes");
+      const data = await response.json();
+      setPacientes(data);
+    } catch (err) {
+      console.error("Erro na conexão com o back-end:", err);
+    }
   };
+
+  useEffect(() => {
+    carregarPacientes();
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -47,9 +49,22 @@ function Gestao() {
     setModalExclusao({ show: true, id });
   };
 
-  const confirmarExclusao = () => {
-    setPacientes(pacientes.filter((p) => p.id !== modalExclusao.id));
-    setModalExclusao({ show: false, id: null });
+  // 2. DELETE: Manda o Python apagar o paciente no banco de dados
+  const confirmarExclusao = async () => {
+    try {
+      const response = await fetch(`${API_URL}/${modalExclusao.id}`, {
+        method: "DELETE",
+      });
+
+      if (response.ok) {
+        setModalExclusao({ show: false, id: null });
+        carregarPacientes(); // Recarrega a lista atualizada
+      } else {
+        throw new Error("Erro ao excluir");
+      }
+    } catch (err) {
+      console.error("Erro ao excluir paciente:", err);
+    }
   };
 
   const cancelarExclusao = () => {
@@ -57,32 +72,54 @@ function Gestao() {
   };
   // ---------------------
 
-  const handleSubmit = (e) => {
+  // 3. POST: Salva o novo paciente no banco de dados Python
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const novoPaciente = {
-      ...form,
-      id: Date.now(),
-      objetivo: "Manutenção",
+    // Traduzindo do Front (Português) para o Back (Inglês) com os tipos certos
+    const payload = {
+      name: form.nome,
+      height: parseFloat(form.altura),
+      weight: parseFloat(form.peso),
+      age: parseInt(form.idade, 10),
+      gender: form.genero,
+      activity_level: form.atividade,
+      calories: parseInt(form.calorias, 10),
+      body_percentage: parseFloat(form.gordura),
+      objective: form.objetivo,
     };
 
-    setPacientes([...pacientes, novoPaciente]);
+    try {
+      const response = await fetch(`${API_URL}/`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
 
-    // Exibe mensagem de sucesso visual
-    setMensagemSucesso(`Paciente ${form.nome} salvo!`);
-    setTimeout(() => setMensagemSucesso(""), 3000);
+      if (!response.ok) throw new Error("Erro ao salvar no banco");
 
-    // Limpa form
-    setForm({
-      nome: "",
-      altura: "",
-      peso: "",
-      idade: "",
-      genero: "",
-      atividade: "",
-      calorias: "",
-      gordura: "",
-    });
+      // Exibe mensagem de sucesso visual
+      setMensagemSucesso(`Paciente ${form.nome} salvo com sucesso!`);
+      setTimeout(() => setMensagemSucesso(""), 3000);
+
+      // Limpa form
+      setForm({
+        nome: "",
+        altura: "",
+        peso: "",
+        idade: "",
+        genero: "",
+        atividade: "",
+        calorias: "",
+        gordura: "",
+      });
+
+      // Puxa a lista nova do banco de dados
+      carregarPacientes();
+    } catch (err) {
+      console.error("Erro ao salvar paciente:", err);
+      alert("Erro ao salvar paciente. Verifique se o Back-End está rodando.");
+    }
   };
 
   return (
@@ -192,6 +229,7 @@ function Gestao() {
                     </tr>
                   </thead>
                   <tbody>
+                    {/* Alterado p.nome para p.name, etc, para bater com o Python */}
                     {pacientes.map((p) => (
                       <tr key={p.id}>
                         <td>
@@ -200,12 +238,12 @@ function Gestao() {
                             title="Ver Detalhes"
                             style={{ color: "#4c546c", fontWeight: "bold" }}
                           >
-                            {p.nome}
+                            {p.name}
                           </Link>
                         </td>
-                        <td>{p.altura} m</td>
-                        <td>{p.peso} kg</td>
-                        <td>{p.genero}</td>
+                        <td>{p.height} m</td>
+                        <td>{p.weight} kg</td>
+                        <td>{p.gender}</td>
                         <td>
                           <button
                             onClick={() => solicitarExclusao(p.id)}
@@ -250,7 +288,7 @@ function Gestao() {
                     {pacientes.map((p) => (
                       <tr key={p.id} style={{ borderBottom: "1px solid #eee" }}>
                         <td style={{ padding: "12px", fontWeight: "bold" }}>
-                          {p.nome}
+                          {p.name}
                         </td>
                         <td
                           style={{
@@ -259,10 +297,10 @@ function Gestao() {
                             textAlign: "center",
                           }}
                         >
-                          {p.gordura}%
+                          {p.body_percentage}%
                         </td>
                         <td style={{ padding: "12px", color: "#009688" }}>
-                          {gerarEstrategia(p)}
+                          {p.objective}
                         </td>
                       </tr>
                     ))}
@@ -276,14 +314,13 @@ function Gestao() {
           <div
             className="patient-form"
             style={{
-              flex: 1, // Mantém 1, mas como a tabela diminuiu (foi pra 2), o form cresce proporcionalmente
+              flex: 1,
               position: "sticky",
               top: "20px",
               minWidth: "320px",
             }}
           >
             <h1>Novo Paciente</h1>
-
             {/* Mensagem de Sucesso */}
             {mensagemSucesso && (
               <div
@@ -387,6 +424,18 @@ function Gestao() {
                 <option value="Muito Ativo">
                   Muito Ativo (trabalho físico + exercício pesado)
                 </option>
+              </select>
+
+              <select
+                name="objetivo"
+                value={form.objetivo}
+                onChange={handleChange}
+                required
+              >
+                <option value="">Objetivo da Dieta</option>
+                <option value="Emagrecimento">Emagrecimento (Secar)</option>
+                <option value="Hipertrofia">Hipertrofia (Ganhar Massa)</option>
+                <option value="Manutenção">Manutenção</option>
               </select>
 
               <button type="submit">Salvar Paciente</button>
