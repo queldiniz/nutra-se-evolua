@@ -337,7 +337,7 @@ function DetalhesPaciente() {
                 minWidth: "150px",
               }}
             >
-              <option value="">Sem expiracao</option>
+              <option value="">Sem expiração</option>
               <option value="7">7 dias</option>
               <option value="30">30 dias</option>
               <option value="90">90 dias</option>
