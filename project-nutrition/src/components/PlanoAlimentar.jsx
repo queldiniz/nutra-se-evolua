@@ -13,7 +13,7 @@ function PlanoAlimentar({ refeicoes, onExcluirAlimento }) {
 
   // Filtra apenas os tipos que existem nas refeicoes, mantendo a ordem
   const tiposPresentes = ordemRefeicoes.filter((tipo) =>
-    refeicoes?.some((r) => r.tipo_refeicao === tipo)
+    refeicoes?.some((r) => r.tipo_refeicao === tipo),
   );
 
   const showActions = typeof onExcluirAlimento === "function";
@@ -48,7 +48,7 @@ function PlanoAlimentar({ refeicoes, onExcluirAlimento }) {
         <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
           {tiposPresentes.map((tipo) => {
             const comidasDestaRefeicao = refeicoes.filter(
-              (r) => r.tipo_refeicao === tipo
+              (r) => r.tipo_refeicao === tipo,
             );
 
             if (comidasDestaRefeicao.length === 0) return null;
@@ -85,10 +85,12 @@ function PlanoAlimentar({ refeicoes, onExcluirAlimento }) {
                   >
                     <thead>
                       <tr style={{ color: "#6c757d", fontSize: "0.9rem" }}>
-                        <th style={{ padding: "12px 20px" }}>Alimento</th>
-                        <th style={{ padding: "12px 20px" }}>Calorias</th>
-                        <th style={{ padding: "12px 20px" }}>Carbos</th>
-                        <th style={{ padding: "12px 20px" }}>Proteinas</th>
+                        <th style={{ padding: "12px 20px" }}>
+                          Alimento (100g){" "}
+                        </th>
+                        <th style={{ padding: "12px 20px" }}>Calorias </th>
+                        <th style={{ padding: "12px 20px" }}>Carboidratos</th>
+                        <th style={{ padding: "12px 20px" }}>Proteínas</th>
                         <th style={{ padding: "12px 20px" }}>Gorduras</th>
                         {showActions && (
                           <th
@@ -97,7 +99,7 @@ function PlanoAlimentar({ refeicoes, onExcluirAlimento }) {
                               textAlign: "center",
                             }}
                           >
-                            Acao
+                            Ação
                           </th>
                         )}
                       </tr>

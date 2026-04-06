@@ -11,20 +11,20 @@ function DetalhesPaciente() {
   const [loading, setLoading] = useState(true);
   const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
-  // Estados para o formulario de Historico
   const [novaAvaliacao, setNovaAvaliacao] = useState({
     data_registro: "",
     peso: "",
     gordura: "",
   });
 
-  // Estados para compartilhamento
   const [showSharePanel, setShowSharePanel] = useState(false);
   const [shareLinks, setShareLinks] = useState([]);
   const [newLinkLabel, setNewLinkLabel] = useState("");
   const [newLinkExpiry, setNewLinkExpiry] = useState("");
   const [copiedId, setCopiedId] = useState(null);
   const [shareLoading, setShareLoading] = useState(false);
+
+  const [mostrarModalExclusao, setMostrarModalExclusao] = useState(false);
 
   const buscarDadosPaciente = () => {
     fetch(`${API_BASE}/api/nutrition/${id}`)
@@ -46,21 +46,13 @@ function DetalhesPaciente() {
     buscarDadosPaciente();
   }, [id]);
 
-  // --- LOGICA DE EXCLUSAO ---
   const excluirPaciente = async () => {
-    if (
-      !window.confirm(
-        "Tem certeza absoluta? Isso apagara este paciente, a dieta e todo o historico dele para sempre!"
-      )
-    )
-      return;
-
     try {
       const response = await fetch(`${API_BASE}/api/nutrition/${id}`, {
         method: "DELETE",
       });
       if (response.ok) {
-        alert("Paciente excluido com sucesso.");
+        setMostrarModalExclusao(false);
         navigate("/gestao");
       } else throw new Error("Erro ao excluir paciente");
     } catch (err) {
@@ -73,10 +65,9 @@ function DetalhesPaciente() {
     if (!window.confirm("Remover este alimento da dieta?")) return;
 
     try {
-      const response = await fetch(
-        `${API_BASE}/api/refeicoes/${idRefeicao}`,
-        { method: "DELETE" }
-      );
+      const response = await fetch(`${API_BASE}/api/refeicoes/${idRefeicao}`, {
+        method: "DELETE",
+      });
       if (response.ok) {
         buscarDadosPaciente();
       } else throw new Error("Erro ao excluir alimento");
@@ -86,10 +77,30 @@ function DetalhesPaciente() {
     }
   };
 
+  const formatarMesAno = (valor) => {
+    if (!valor || !valor.includes("-")) return valor;
+    const [ano, mes] = valor.split("-");
+    const meses = [
+      "Jan",
+      "Fev",
+      "Mar",
+      "Abr",
+      "Mai",
+      "Jun",
+      "Jul",
+      "Ago",
+      "Set",
+      "Out",
+      "Nov",
+      "Dez",
+    ];
+    return `${meses[parseInt(mes, 10) - 1]}/${ano}`;
+  };
+
   const salvarHistorico = async (e) => {
     e.preventDefault();
     const payload = {
-      data_registro: novaAvaliacao.data_registro,
+      data_registro: formatarMesAno(novaAvaliacao.data_registro),
       peso: parseFloat(novaAvaliacao.peso),
       gordura: parseFloat(novaAvaliacao.gordura),
       paciente_id: parseInt(id),
@@ -108,14 +119,15 @@ function DetalhesPaciente() {
       } else throw new Error("Erro ao salvar historico");
     } catch (err) {
       console.error(err);
-      alert("Erro ao salvar a avaliacao no banco de dados.");
+      alert("Erro ao salvar a avaliação no banco de dados.");
     }
   };
 
-  // --- LOGICA DE COMPARTILHAMENTO ---
   const carregarLinks = async () => {
     try {
-      const res = await fetch(`${API_BASE}/api/nutrition/${id}/shares?active_only=true`);
+      const res = await fetch(
+        `${API_BASE}/api/nutrition/${id}/shares?active_only=true`,
+      );
       if (res.ok) {
         const data = await res.json();
         setShareLinks(data);
@@ -158,11 +170,19 @@ function DetalhesPaciente() {
   };
 
   const revogarLink = async (tokenId) => {
-    if (!window.confirm("Revogar este link? Quem tiver o link nao podera mais acessar.")) return;
+    if (
+      !window.confirm(
+        "Revogar este link? Quem tiver o link nao podera mais acessar.",
+      )
+    )
+      return;
     try {
-      const res = await fetch(`${API_BASE}/api/nutrition/${id}/share/${tokenId}`, {
-        method: "DELETE",
-      });
+      const res = await fetch(
+        `${API_BASE}/api/nutrition/${id}/share/${tokenId}`,
+        {
+          method: "DELETE",
+        },
+      );
       if (res.ok) carregarLinks();
     } catch (err) {
       alert("Erro ao revogar link.");
@@ -177,7 +197,6 @@ function DetalhesPaciente() {
       setCopiedId(tokenId);
       setTimeout(() => setCopiedId(null), 2000);
     } catch {
-      // Fallback para navegadores que nao suportam clipboard API
       const input = document.createElement("input");
       input.value = url;
       document.body.appendChild(input);
@@ -191,9 +210,7 @@ function DetalhesPaciente() {
 
   if (loading)
     return (
-      <h2
-        style={{ textAlign: "center", marginTop: "50px", color: "#4c546c" }}
-      >
+      <h2 style={{ textAlign: "center", marginTop: "50px", color: "#4c546c" }}>
         Carregando Prontuario...
       </h2>
     );
@@ -210,7 +227,6 @@ function DetalhesPaciente() {
     <section
       style={{ padding: "40px 20px", maxWidth: "1200px", margin: "0 auto" }}
     >
-      {/* CABECALHO */}
       <div
         style={{
           display: "flex",
@@ -273,7 +289,7 @@ function DetalhesPaciente() {
             + Adicionar Alimentos
           </Link>
           <button
-            onClick={excluirPaciente}
+            onClick={() => setMostrarModalExclusao(true)}
             style={{
               backgroundColor: "#dc3545",
               color: "white",
@@ -289,7 +305,86 @@ function DetalhesPaciente() {
         </div>
       </div>
 
-      {/* PAINEL DE COMPARTILHAMENTO */}
+      {mostrarModalExclusao && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            backgroundColor: "rgba(0,0,0,0.6)",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            zIndex: 9999,
+            padding: "20px",
+          }}
+        >
+          <div
+            style={{
+              backgroundColor: "white",
+              padding: "30px",
+              borderRadius: "15px",
+              width: "100%",
+              maxWidth: "400px",
+              textAlign: "center",
+              boxShadow: "0 10px 30px rgba(0,0,0,0.2)",
+            }}
+          >
+            <h2
+              style={{ color: "#dc3545", marginBottom: "15px", marginTop: 0 }}
+            >
+              Atenção!
+            </h2>
+            <p
+              style={{
+                color: "#555",
+                marginBottom: "25px",
+                fontSize: "1.1rem",
+              }}
+            >
+              Tem certeza de que deseja excluir? Isso apagará todo o prontuário
+              deste paciente.
+            </p>
+            <div
+              style={{ display: "flex", justifyContent: "center", gap: "15px" }}
+            >
+              <button
+                onClick={() => setMostrarModalExclusao(false)}
+                style={{
+                  padding: "10px 20px",
+                  backgroundColor: "#6c757d",
+                  color: "white",
+                  border: "none",
+                  borderRadius: "5px",
+                  cursor: "pointer",
+                  fontWeight: "bold",
+                  flex: 1,
+                }}
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={excluirPaciente}
+                style={{
+                  padding: "10px 20px",
+                  backgroundColor: "#dc3545",
+                  color: "white",
+                  border: "none",
+                  borderRadius: "5px",
+                  cursor: "pointer",
+                  fontWeight: "bold",
+                  flex: 1,
+                }}
+              >
+                Sim, Excluir
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {showSharePanel && (
         <div
           style={{
@@ -304,7 +399,6 @@ function DetalhesPaciente() {
             Links de Compartilhamento
           </h3>
 
-          {/* Formulario para gerar novo link */}
           <div
             style={{
               display: "flex",
@@ -360,7 +454,6 @@ function DetalhesPaciente() {
             </button>
           </div>
 
-          {/* Lista de links ativos */}
           {shareLinks.length === 0 ? (
             <p style={{ color: "#666", fontStyle: "italic" }}>
               Nenhum link ativo. Gere um link acima para compartilhar.
@@ -403,10 +496,7 @@ function DetalhesPaciente() {
                 </thead>
                 <tbody>
                   {shareLinks.map((link) => (
-                    <tr
-                      key={link.id}
-                      style={{ borderTop: "1px solid #eee" }}
-                    >
+                    <tr key={link.id} style={{ borderTop: "1px solid #eee" }}>
                       <td style={{ padding: "10px 15px", color: "#333" }}>
                         {link.label || "Sem rotulo"}
                       </td>
@@ -415,7 +505,9 @@ function DetalhesPaciente() {
                       </td>
                       <td style={{ padding: "10px 15px", color: "#666" }}>
                         {link.expires_at
-                          ? new Date(link.expires_at).toLocaleDateString("pt-BR")
+                          ? new Date(link.expires_at).toLocaleDateString(
+                              "pt-BR",
+                            )
                           : "Nunca"}
                       </td>
                       <td
@@ -487,16 +579,13 @@ function DetalhesPaciente() {
         </div>
       )}
 
-      {/* DADOS PESSOAIS */}
       <PacienteInfoCard dadosPaciente={dadosPaciente} />
 
-      {/* DIETA SEPARADA POR REFEICAO */}
       <PlanoAlimentar
         refeicoes={dadosPaciente.refeicoes}
         onExcluirAlimento={excluirAlimento}
       />
 
-      {/* FORMULARIO DE AVALIACAO */}
       <div
         style={{
           backgroundColor: "#f8f9fa",
@@ -513,7 +602,7 @@ function DetalhesPaciente() {
             fontSize: "1.2rem",
           }}
         >
-          + Lancar Nova Avaliacao (Historico)
+          + Lançar Nova Avaliação (Histórico)
         </h3>
         <form
           onSubmit={salvarHistorico}
@@ -525,8 +614,7 @@ function DetalhesPaciente() {
           }}
         >
           <input
-            type="text"
-            placeholder="Mes (ex: Abril/2026)"
+            type="month"
             value={novaAvaliacao.data_registro}
             onChange={(e) =>
               setNovaAvaliacao({
@@ -592,15 +680,13 @@ function DetalhesPaciente() {
               fontWeight: "bold",
             }}
           >
-            Salvar Evolucao
+            Salvar Evolução
           </button>
         </form>
       </div>
 
-      {/* AREA DOS GRAFICOS */}
       <GraficosEvolucao historico={historicoReal} />
 
-      {/* BOTAO VOLTAR */}
       <div style={{ marginTop: "50px", textAlign: "center" }}>
         <button
           onClick={() => navigate("/gestao")}

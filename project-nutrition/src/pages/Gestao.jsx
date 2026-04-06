@@ -9,6 +9,7 @@ function Gestao() {
   // === ESTADOS DO MODAL DE CADASTRO ===
   const [mostrarModal, setMostrarModal] = useState(false);
   const [mensagemSucesso, setMensagemSucesso] = useState("");
+  const [mensagemErro, setMensagemErro] = useState("");
   const [form, setForm] = useState({
     nome: "",
     altura: "",
@@ -43,19 +44,39 @@ function Gestao() {
 
   // Controla o que é digitado no formulário
   const handleChange = (e) => {
-    const { name, value } = e.target;
+    let { name, value } = e.target;
+
+    if (name === "altura") {
+      let apenasNumeros = value.replace(/\D/g, "");
+
+      if (apenasNumeros.length > 1) {
+        value = apenasNumeros.replace(/^(\d)(\d{0,2}).*/, "$1.$2");
+      } else {
+        value = apenasNumeros;
+      }
+    }
+
     setForm({ ...form, [name]: value });
   };
 
   // Salva o novo paciente
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setMensagemErro("");
+
+    const idadeNum = parseInt(form.idade, 10);
+    if (idadeNum <= 0 || idadeNum > 120) {
+      setMensagemErro(
+        "⚠️ Por favor, insira uma idade válida (entre 1 e 120 anos).",
+      );
+      return;
+    }
 
     const payload = {
       name: form.nome,
       height: parseFloat(form.altura),
       weight: parseFloat(form.peso),
-      age: parseInt(form.idade, 10),
+      age: idadeNum,
       gender: form.genero,
       activity_level: form.atividade,
       calories: parseInt(form.calorias, 10),
@@ -75,7 +96,7 @@ function Gestao() {
       setMensagemSucesso(`Paciente ${form.nome} cadastrado com sucesso!`);
       setTimeout(() => {
         setMensagemSucesso("");
-        setMostrarModal(false); // Fecha o modal depois de 2 segundos
+        setMostrarModal(false);
       }, 2000);
 
       // Limpa o form
@@ -90,7 +111,7 @@ function Gestao() {
         gordura: "",
         objetivo: "",
       });
-      carregarPacientes(); // Atualiza os cards imediatamente
+      carregarPacientes();
     } catch (err) {
       console.error("Erro ao salvar paciente:", err);
       alert("Erro ao salvar paciente. Verifique o servidor.");
@@ -110,7 +131,6 @@ function Gestao() {
         fontFamily: "Poppins, sans-serif",
       }}
     >
-      {/*CABEÇALHO COM BOTÃO NOVO PACIENTE */}
       <div
         style={{
           display: "flex",
@@ -145,7 +165,6 @@ function Gestao() {
         </button>
       </div>
 
-      {/* --- BARRA DE PESQUISA --- */}
       <div
         style={{
           display: "flex",
@@ -171,7 +190,6 @@ function Gestao() {
         />
       </div>
 
-      {/* --- GRID DE CARDS --- */}
       {loading ? (
         <h3 style={{ textAlign: "center", color: "#6c757d" }}>
           Carregando prontuários...
@@ -260,7 +278,6 @@ function Gestao() {
         </div>
       )}
 
-      {/* MODAL DE CADASTRO FLUTUANTE */}
       {mostrarModal && (
         <div
           style={{
@@ -332,6 +349,22 @@ function Gestao() {
               </div>
             )}
 
+            {mensagemErro && (
+              <div
+                style={{
+                  backgroundColor: "#f8d7da",
+                  color: "#842029",
+                  padding: "10px",
+                  borderRadius: "5px",
+                  marginBottom: "15px",
+                  textAlign: "center",
+                  fontWeight: "bold",
+                }}
+              >
+                {mensagemErro}
+              </div>
+            )}
+
             <form
               onSubmit={handleSubmit}
               style={{ display: "flex", flexDirection: "column", gap: "15px" }}
@@ -385,12 +418,12 @@ function Gestao() {
 
               <div style={{ display: "flex", gap: "10px" }}>
                 <input
-                  type="number"
+                  type="text"
                   name="altura"
                   value={form.altura}
                   onChange={handleChange}
-                  placeholder="Altura (m)"
-                  step="0.01"
+                  placeholder="Altura (Ex: 1.55)"
+                  maxLength="4"
                   required
                   style={{
                     padding: "10px",
