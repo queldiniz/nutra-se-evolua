@@ -1,16 +1,14 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 
 function Gestao() {
   const [pacientes, setPacientes] = useState([]);
+  const [busca, setBusca] = useState("");
+  const [loading, setLoading] = useState(true);
 
-  // URL do seu Back-End Python
-  const API_URL = "http://localhost:5000/api/nutrition";
-
-  // Estados para Modal e Feedback
+  // === ESTADOS DO MODAL DE CADASTRO ===
+  const [mostrarModal, setMostrarModal] = useState(false);
   const [mensagemSucesso, setMensagemSucesso] = useState("");
-  const [modalExclusao, setModalExclusao] = useState({ show: false, id: null });
-
   const [form, setForm] = useState({
     nome: "",
     altura: "",
@@ -23,15 +21,18 @@ function Gestao() {
     objetivo: "",
   });
 
-  // 1. GET: Busca os pacientes no Python ao abrir a tela
+  const API_URL = "http://localhost:5000/api/nutrition";
+
   const carregarPacientes = async () => {
     try {
       const response = await fetch(`${API_URL}/`);
       if (!response.ok) throw new Error("Erro ao buscar pacientes");
       const data = await response.json();
       setPacientes(data);
+      setLoading(false);
     } catch (err) {
       console.error("Erro na conexão com o back-end:", err);
+      setLoading(false);
     }
   };
 
@@ -39,44 +40,16 @@ function Gestao() {
     carregarPacientes();
   }, []);
 
+  // Controla o que é digitado no formulário
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm({ ...form, [name]: value });
   };
 
-  // --- Lógica do Modal ---
-  const solicitarExclusao = (id) => {
-    setModalExclusao({ show: true, id });
-  };
-
-  // 2. DELETE: Manda o Python apagar o paciente no banco de dados
-  const confirmarExclusao = async () => {
-    try {
-      const response = await fetch(`${API_URL}/${modalExclusao.id}`, {
-        method: "DELETE",
-      });
-
-      if (response.ok) {
-        setModalExclusao({ show: false, id: null });
-        carregarPacientes(); // Recarrega a lista atualizada
-      } else {
-        throw new Error("Erro ao excluir");
-      }
-    } catch (err) {
-      console.error("Erro ao excluir paciente:", err);
-    }
-  };
-
-  const cancelarExclusao = () => {
-    setModalExclusao({ show: false, id: null });
-  };
-  // ---------------------
-
-  // 3. POST: Salva o novo paciente no banco de dados Python
+  // Salva o novo paciente
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Traduzindo do Front (Português) para o Back (Inglês) com os tipos certos
     const payload = {
       name: form.nome,
       height: parseFloat(form.altura),
@@ -98,11 +71,13 @@ function Gestao() {
 
       if (!response.ok) throw new Error("Erro ao salvar no banco");
 
-      // Exibe mensagem de sucesso visual
-      setMensagemSucesso(`Paciente ${form.nome} salvo com sucesso!`);
-      setTimeout(() => setMensagemSucesso(""), 3000);
+      setMensagemSucesso(`Paciente ${form.nome} cadastrado com sucesso!`);
+      setTimeout(() => {
+        setMensagemSucesso("");
+        setMostrarModal(false); // Fecha o modal depois de 2 segundos
+      }, 2000);
 
-      // Limpa form
+      // Limpa o form
       setForm({
         nome: "",
         altura: "",
@@ -112,20 +87,180 @@ function Gestao() {
         atividade: "",
         calorias: "",
         gordura: "",
+        objetivo: "",
       });
-
-      // Puxa a lista nova do banco de dados
-      carregarPacientes();
+      carregarPacientes(); // Atualiza os cards imediatamente
     } catch (err) {
       console.error("Erro ao salvar paciente:", err);
-      alert("Erro ao salvar paciente. Verifique se o Back-End está rodando.");
+      alert("Erro ao salvar paciente. Verifique o servidor.");
     }
   };
 
+  const pacientesFiltrados = pacientes.filter((p) =>
+    p.name.toLowerCase().includes(busca.toLowerCase()),
+  );
+
   return (
-    <section className="pacientes">
-      {/* --- MODAL (Janela de Confirmação) --- */}
-      {modalExclusao.show && (
+    <section
+      style={{
+        padding: "40px 20px",
+        maxWidth: "1100px",
+        margin: "0 auto",
+        fontFamily: "Poppins, sans-serif",
+      }}
+    >
+      {/*CABEÇALHO COM BOTÃO NOVO PACIENTE */}
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: "30px",
+          flexWrap: "wrap",
+          gap: "15px",
+        }}
+      >
+        <h1 style={{ color: "#2c3e50", fontSize: "2.5rem", margin: 0 }}>
+          Meus Pacientes
+        </h1>
+        <button
+          onClick={() => setMostrarModal(true)}
+          style={{
+            backgroundColor: "#0d6efd",
+            color: "white",
+            border: "none",
+            padding: "12px 25px",
+            borderRadius: "8px",
+            fontWeight: "bold",
+            fontSize: "1rem",
+            cursor: "pointer",
+            boxShadow: "0 4px 6px rgba(13, 110, 253, 0.2)",
+            transition: "0.2s",
+          }}
+          onMouseOver={(e) => (e.target.style.backgroundColor = "#0b5ed7")}
+          onMouseOut={(e) => (e.target.style.backgroundColor = "#0d6efd")}
+        >
+          + Novo Paciente
+        </button>
+      </div>
+
+      {/* --- BARRA DE PESQUISA --- */}
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          marginBottom: "50px",
+        }}
+      >
+        <input
+          type="text"
+          placeholder="🔍 Pesquisar paciente pelo nome..."
+          value={busca}
+          onChange={(e) => setBusca(e.target.value)}
+          style={{
+            width: "100%",
+            maxWidth: "600px",
+            padding: "15px 25px",
+            borderRadius: "30px",
+            border: "1px solid #dee2e6",
+            fontSize: "1.1rem",
+            outline: "none",
+            boxShadow: "0 4px 15px rgba(0,0,0,0.05)",
+          }}
+        />
+      </div>
+
+      {/* --- GRID DE CARDS --- */}
+      {loading ? (
+        <h3 style={{ textAlign: "center", color: "#6c757d" }}>
+          Carregando prontuários...
+        </h3>
+      ) : (
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))",
+            gap: "30px",
+          }}
+        >
+          {pacientesFiltrados.length > 0 ? (
+            pacientesFiltrados.map((p) => (
+              <div
+                key={p.id}
+                style={{
+                  backgroundColor: "white",
+                  borderRadius: "15px",
+                  padding: "30px",
+                  boxShadow: "0 4px 15px rgba(0,0,0,0.05)",
+                  borderTop: "5px solid #0d6efd",
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "space-between",
+                }}
+              >
+                <div>
+                  <h2
+                    style={{
+                      color: "#333",
+                      fontSize: "1.5rem",
+                      margin: "0 0 15px 0",
+                    }}
+                  >
+                    {p.name}
+                  </h2>
+                  <p style={{ margin: "5px 0", color: "#555" }}>
+                    <strong>Idade:</strong> {p.age} anos
+                  </p>
+                  <p style={{ margin: "5px 0", color: "#555" }}>
+                    <strong>Estratégia:</strong>{" "}
+                    <span
+                      style={{
+                        backgroundColor: "#e9ecef",
+                        padding: "2px 8px",
+                        borderRadius: "10px",
+                        fontSize: "0.9rem",
+                      }}
+                    >
+                      {p.objective || "Não definida"}
+                    </span>
+                  </p>
+                </div>
+                <Link
+                  to={`/paciente/${p.id}`}
+                  style={{
+                    display: "block",
+                    textAlign: "center",
+                    marginTop: "25px",
+                    padding: "12px",
+                    backgroundColor: "#f8f9fa",
+                    color: "#0d6efd",
+                    textDecoration: "none",
+                    fontWeight: "bold",
+                    borderRadius: "8px",
+                    border: "1px solid #dee2e6",
+                  }}
+                >
+                  Abrir Prontuário ➔
+                </Link>
+              </div>
+            ))
+          ) : (
+            <p
+              style={{
+                textAlign: "center",
+                color: "#999",
+                gridColumn: "1 / -1",
+                fontSize: "1.2rem",
+              }}
+            >
+              Nenhum paciente encontrado.
+            </p>
+          )}
+        </div>
+      )}
+
+      {/* MODAL DE CADASTRO FLUTUANTE */}
+      {mostrarModal && (
         <div
           style={{
             position: "fixed",
@@ -133,212 +268,73 @@ function Gestao() {
             left: 0,
             width: "100%",
             height: "100%",
-            backgroundColor: "rgba(0,0,0,0.5)",
+            backgroundColor: "rgba(0,0,0,0.6)",
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
-            zIndex: 1000,
+            zIndex: 9999,
+            padding: "20px",
           }}
         >
           <div
             style={{
               backgroundColor: "white",
               padding: "30px",
-              borderRadius: "10px",
-              boxShadow: "0 4px 20px rgba(0,0,0,0.2)",
-              textAlign: "center",
-              maxWidth: "400px",
-            }}
-          >
-            <h3 style={{ color: "#333", marginBottom: "10px" }}>
-              Confirmar Exclusão
-            </h3>
-            <p style={{ marginBottom: "20px", color: "#666" }}>
-              Tem certeza que deseja excluir o registro?
-            </p>
-            <div
-              style={{ display: "flex", justifyContent: "center", gap: "15px" }}
-            >
-              <button
-                onClick={cancelarExclusao}
-                style={{
-                  padding: "10px 20px",
-                  border: "none",
-                  borderRadius: "5px",
-                  cursor: "pointer",
-                  backgroundColor: "#e0e0e0",
-                  color: "#333",
-                  fontWeight: "600",
-                }}
-              >
-                Cancelar
-              </button>
-              <button
-                onClick={confirmarExclusao}
-                style={{
-                  padding: "10px 20px",
-                  border: "none",
-                  borderRadius: "5px",
-                  cursor: "pointer",
-                  backgroundColor: "#ff6b6b",
-                  color: "white",
-                  fontWeight: "600",
-                }}
-              >
-                Sim, Excluir
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      <div className="pacientes-container">
-        <div
-          className="pacientes-container-flex"
-          style={{
-            display: "flex",
-            gap: "30px",
-            width: "100%",
-            alignItems: "flex-start",
-          }}
-        >
-          {/* === ESQUERDA (TABELAS) === */}
-          <div
-            className="left-content"
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              gap: "40px",
-              flex: 2,
+              borderRadius: "15px",
               width: "100%",
-              minWidth: 0,
+              maxWidth: "500px",
+              maxHeight: "90vh",
+              overflowY: "auto",
+              boxShadow: "0 10px 30px rgba(0,0,0,0.2)",
             }}
           >
-            {/* Tabela 1 */}
-            <div className="patient-list" style={{ width: "100%" }}>
-              <h1>Lista de Pacientes</h1>
-              <div className="table-responsive">
-                <table id="patientsTable">
-                  <thead>
-                    <tr>
-                      <th>Nome</th>
-                      <th>Altura</th>
-                      <th>Peso</th>
-                      <th>Gênero</th>
-                      <th>Ações</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {/* Alterado p.nome para p.name, etc, para bater com o Python */}
-                    {pacientes.map((p) => (
-                      <tr key={p.id}>
-                        <td>
-                          <Link
-                            to={`/paciente/${p.id}`}
-                            title="Ver Detalhes"
-                            style={{ color: "#4c546c", fontWeight: "bold" }}
-                          >
-                            {p.name}
-                          </Link>
-                        </td>
-                        <td>{p.height} m</td>
-                        <td>{p.weight} kg</td>
-                        <td>{p.gender}</td>
-                        <td>
-                          <button
-                            onClick={() => solicitarExclusao(p.id)}
-                            style={{
-                              backgroundColor: "#ff6b6b",
-                              color: "white",
-                              border: "none",
-                              padding: "5px 10px",
-                              borderRadius: "4px",
-                              cursor: "pointer",
-                            }}
-                          >
-                            Excluir
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                borderBottom: "2px solid #eee",
+                paddingBottom: "15px",
+                marginBottom: "20px",
+              }}
+            >
+              <h2 style={{ margin: 0, color: "#2c3e50" }}>
+                Cadastrar Paciente
+              </h2>
+              <button
+                onClick={() => setMostrarModal(false)}
+                style={{
+                  background: "none",
+                  border: "none",
+                  fontSize: "1.5rem",
+                  cursor: "pointer",
+                  color: "#999",
+                }}
+              >
+                ✖
+              </button>
             </div>
 
-            {/* Tabela 2 */}
-            <div className="patient-list" style={{ width: "100%" }}>
-              <h1>Visão Geral</h1>
-              <div className="table-responsive">
-                <table
-                  style={{
-                    width: "100%",
-                    borderCollapse: "collapse",
-                    minWidth: "500px",
-                  }}
-                >
-                  <thead style={{ backgroundColor: "#2c3e50", color: "white" }}>
-                    <tr>
-                      <th style={{ padding: "12px" }}>Nome</th>
-                      <th style={{ padding: "12px" }}>Gordura %</th>
-                      <th style={{ padding: "12px" }}>Estratégia</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {pacientes.map((p) => (
-                      <tr key={p.id} style={{ borderBottom: "1px solid #eee" }}>
-                        <td style={{ padding: "12px", fontWeight: "bold" }}>
-                          {p.name}
-                        </td>
-                        <td
-                          style={{
-                            padding: "12px",
-                            color: "#ff7300",
-                            textAlign: "center",
-                          }}
-                        >
-                          {p.body_percentage}%
-                        </td>
-                        <td style={{ padding: "12px", color: "#009688" }}>
-                          {p.objective}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-
-          {/* === DIREITA (FORMULÁRIO) === */}
-          <div
-            className="patient-form"
-            style={{
-              flex: 1,
-              position: "sticky",
-              top: "20px",
-              minWidth: "320px",
-            }}
-          >
-            <h1>Novo Paciente</h1>
-            {/* Mensagem de Sucesso */}
             {mensagemSucesso && (
               <div
                 style={{
                   backgroundColor: "#d1e7dd",
                   color: "#0f5132",
                   padding: "10px",
-                  marginBottom: "15px",
                   borderRadius: "5px",
+                  marginBottom: "15px",
                   textAlign: "center",
-                  border: "1px solid #badbcc",
+                  fontWeight: "bold",
                 }}
               >
                 {mensagemSucesso}
               </div>
             )}
 
-            <form id="ntrForm" onSubmit={handleSubmit}>
+            <form
+              onSubmit={handleSubmit}
+              style={{ display: "flex", flexDirection: "column", gap: "15px" }}
+            >
               <input
                 type="text"
                 name="nome"
@@ -346,84 +342,128 @@ function Gestao() {
                 onChange={handleChange}
                 placeholder="Nome Completo"
                 required
-              />
-              <input
-                type="number"
-                name="altura"
-                value={form.altura}
-                onChange={handleChange}
-                placeholder="Altura (m)"
-                step="0.01"
-                required
-              />
-              <input
-                type="number"
-                name="peso"
-                value={form.peso}
-                onChange={handleChange}
-                placeholder="Peso (kg)"
-                step="0.1"
-                required
-              />
-              <input
-                type="number"
-                name="idade"
-                value={form.idade}
-                onChange={handleChange}
-                placeholder="Idade"
-                required
-              />
-              <input
-                type="number"
-                name="gordura"
-                value={form.gordura}
-                onChange={handleChange}
-                placeholder="% Gordura"
-                step="0.1"
-                required
-              />
-              <input
-                type="number"
-                name="calorias"
-                value={form.calorias}
-                onChange={handleChange}
-                placeholder="Consumo de Calorias (kcal)"
-                required
+                style={{
+                  padding: "10px",
+                  borderRadius: "5px",
+                  border: "1px solid #ccc",
+                }}
               />
 
-              <select
-                name="genero"
-                value={form.genero}
-                onChange={handleChange}
-                required
-              >
-                <option value="">Gênero</option>
-                <option value="Masculino">Masculino</option>
-                <option value="Feminino">Feminino</option>
-              </select>
+              <div style={{ display: "flex", gap: "10px" }}>
+                <input
+                  type="number"
+                  name="idade"
+                  value={form.idade}
+                  onChange={handleChange}
+                  placeholder="Idade"
+                  required
+                  style={{
+                    padding: "10px",
+                    borderRadius: "5px",
+                    border: "1px solid #ccc",
+                    flex: 1,
+                  }}
+                />
+                <select
+                  name="genero"
+                  value={form.genero}
+                  onChange={handleChange}
+                  required
+                  style={{
+                    padding: "10px",
+                    borderRadius: "5px",
+                    border: "1px solid #ccc",
+                    flex: 1,
+                  }}
+                >
+                  <option value="">Gênero</option>
+                  <option value="Masculino">Masculino</option>
+                  <option value="Feminino">Feminino</option>
+                </select>
+              </div>
+
+              <div style={{ display: "flex", gap: "10px" }}>
+                <input
+                  type="number"
+                  name="altura"
+                  value={form.altura}
+                  onChange={handleChange}
+                  placeholder="Altura (m)"
+                  step="0.01"
+                  required
+                  style={{
+                    padding: "10px",
+                    borderRadius: "5px",
+                    border: "1px solid #ccc",
+                    flex: 1,
+                  }}
+                />
+                <input
+                  type="number"
+                  name="peso"
+                  value={form.peso}
+                  onChange={handleChange}
+                  placeholder="Peso (kg)"
+                  step="0.1"
+                  required
+                  style={{
+                    padding: "10px",
+                    borderRadius: "5px",
+                    border: "1px solid #ccc",
+                    flex: 1,
+                  }}
+                />
+              </div>
+
+              <div style={{ display: "flex", gap: "10px" }}>
+                <input
+                  type="number"
+                  name="gordura"
+                  value={form.gordura}
+                  onChange={handleChange}
+                  placeholder="% Gordura"
+                  step="0.1"
+                  required
+                  style={{
+                    padding: "10px",
+                    borderRadius: "5px",
+                    border: "1px solid #ccc",
+                    flex: 1,
+                  }}
+                />
+                <input
+                  type="number"
+                  name="calorias"
+                  value={form.calorias}
+                  onChange={handleChange}
+                  placeholder="Consumo Calórico Diário"
+                  required
+                  style={{
+                    padding: "10px",
+                    borderRadius: "5px",
+                    border: "1px solid #ccc",
+                    flex: 1,
+                  }}
+                />
+              </div>
 
               <select
                 name="atividade"
                 value={form.atividade}
                 onChange={handleChange}
                 required
+                style={{
+                  padding: "10px",
+                  borderRadius: "5px",
+                  border: "1px solid #ccc",
+                }}
               >
                 <option value="">Nível de Atividade</option>
-                <option value="Sedentário">
-                  Sedentário (pouco ou nenhum exercício)
-                </option>
-                <option value="Levemente Ativo">
-                  Levemente Ativo (exercício leve 1-3 dias/semana)
-                </option>
-                <option value="Moderadamente Ativo">
-                  Moderadamente Ativo (exercício moderado 3-5 dias/semana)
-                </option>
-                <option value="Ativo">
-                  Ativo (exercício pesado 6-7 dias/semana)
-                </option>
-                <option value="Muito Ativo">
-                  Muito Ativo (trabalho físico + exercício pesado)
-                </option>
+                <option value="Sedentário">Sedentário</option>
+                <option value="Levemente Ativo">Levemente Ativo</option>
+                <option value="Moderadamente Ativo">Moderadamente Ativo</option>
+                <option value="Ativo">Ativo</option>
+                <option value="Muito Ativo">Muito Ativo</option>
               </select>
 
               <select
@@ -431,6 +471,11 @@ function Gestao() {
                 value={form.objetivo}
                 onChange={handleChange}
                 required
+                style={{
+                  padding: "10px",
+                  borderRadius: "5px",
+                  border: "1px solid #ccc",
+                }}
               >
                 <option value="">Objetivo da Dieta</option>
                 <option value="Emagrecimento">Emagrecimento (Secar)</option>
@@ -438,11 +483,26 @@ function Gestao() {
                 <option value="Manutenção">Manutenção</option>
               </select>
 
-              <button type="submit">Salvar Paciente</button>
+              <button
+                type="submit"
+                style={{
+                  padding: "12px",
+                  backgroundColor: "#198754",
+                  color: "white",
+                  border: "none",
+                  borderRadius: "5px",
+                  fontWeight: "bold",
+                  cursor: "pointer",
+                  marginTop: "10px",
+                  fontSize: "1.1rem",
+                }}
+              >
+                Salvar Paciente
+              </button>
             </form>
           </div>
         </div>
-      </div>
+      )}
     </section>
   );
 }

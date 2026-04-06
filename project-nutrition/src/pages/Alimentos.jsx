@@ -6,21 +6,36 @@ function Alimentos() {
   const [carregando, setCarregando] = useState(false);
   const [erro, setErro] = useState("");
 
-  // Estados para listar os pacientes e saber quem foi selecionado
+  // Estados dos pacientes e da refeição
   const [pacientes, setPacientes] = useState([]);
   const [pacienteSelecionado, setPacienteSelecionado] = useState("");
+  const [refeicaoSelecionada, setRefeicaoSelecionada] =
+    useState("Café da Manhã");
+
+  // 1. Estado para o balão de feedback (Toast)
+  const [toast, setToast] = useState({ texto: "", tipo: "" });
+  // 2. Estados para editar o nome direto no Card
+  const [idEditando, setIdEditando] = useState(null);
+  const [nomeEditado, setNomeEditado] = useState("");
 
   const API_URL_FATSECRET = "http://localhost:5000/api/alimentos/buscar";
   const API_URL_PACIENTES = "http://localhost:5000/api/nutrition/";
-  const API_URL_REFEICOES = "http://localhost:5000/api/refeicoes/";
+  const API_URL_REFEICOES = "http://localhost:5000/api/refeicoes";
 
-  // 1. Busca os pacientes assim que a tela abre para colocar no Select
   useEffect(() => {
     fetch(API_URL_PACIENTES)
       .then((res) => res.json())
       .then((data) => setPacientes(data))
       .catch((err) => console.error("Erro ao carregar pacientes:", err));
   }, []);
+
+  // Função para chamar o feedback flutuante que some sozinho em 3s
+  const mostrarFeedback = (texto, tipo) => {
+    setToast({ texto, tipo });
+    setTimeout(() => {
+      setToast({ texto: "", tipo: "" });
+    }, 3000);
+  };
 
   const buscarAlimentos = async (e) => {
     e.preventDefault();
@@ -29,10 +44,9 @@ function Alimentos() {
     setCarregando(true);
     setErro("");
     setResultados([]);
+    setIdEditando(null);
 
     try {
-      // Nota: Dependendo de como você fez o seu Back-End,
-      // a URL pode precisar ser `${API_URL_FATSECRET}/${pesquisa}` em vez de usar o `?pesquisa=`
       const response = await fetch(
         `${API_URL_FATSECRET}?pesquisa=${encodeURIComponent(pesquisa)}`,
       );
@@ -40,24 +54,20 @@ function Alimentos() {
       if (!response.ok) throw new Error("Erro ao buscar dados do servidor.");
 
       const data = await response.json();
-
-      // 👇 ESSA LINHA É NOSSO RAIO-X: Vai imprimir a resposta do Python no seu navegador!
       console.log("Resposta do Python (FatSecret):", data);
 
       let listaAlimentos = [];
 
-      // Tornando o React resiliente a vários formatos de resposta do seu Python:
       if (data.foods && data.foods.food) {
         listaAlimentos = Array.isArray(data.foods.food)
           ? data.foods.food
           : [data.foods.food];
       } else if (Array.isArray(data)) {
-        listaAlimentos = data; // Se o Python já mandar a lista limpa direto
+        listaAlimentos = data;
       } else if (data.food) {
         listaAlimentos = Array.isArray(data.food) ? data.food : [data.food];
       }
 
-      // Verifica se a lista final tem itens
       if (listaAlimentos.length > 0) {
         setResultados(listaAlimentos);
       } else {
@@ -71,32 +81,37 @@ function Alimentos() {
     }
   };
 
-  // 2. A MÁGICA: Função disparada ao clicar no botão "Adicionar à Dieta"
-  const adicionarNaDieta = async (alimento) => {
+  //Ao clicar no botão azul, abre o campo de edição no próprio card
+  const iniciarAdicao = (alimento) => {
     if (!pacienteSelecionado) {
-      alert(
-        "⚠️ Por favor, selecione um paciente no topo da tela antes de adicionar um alimento!",
+      mostrarFeedback(
+        "⚠️ Por favor, selecione um paciente no topo da tela!",
+        "erro",
       );
       return;
     }
+    setIdEditando(alimento.food_id);
+    setNomeEditado(alimento.food_name);
+  };
 
-    // O "Recortador" agora entende Inglês e Português, e lida com vírgulas!
+  //Ao confirmar, envia para o bd
+  const confirmarAdicao = async (alimento) => {
     const desc = alimento.food_description;
     const matchCal = desc.match(/(?:Calories|Calorias):\s*([\d.,]+)kcal/i);
     const matchCarbs = desc.match(/(?:Carbs|Carboidratos|Carb):\s*([\d.,]+)g/i);
     const matchProt = desc.match(/(?:Protein|Proteínas|Prot):\s*([\d.,]+)g/i);
     const matchFat = desc.match(/(?:Fat|Gorduras|Gord):\s*([\d.,]+)g/i);
 
-    // Converte os números (trocando a vírgula do padrão brasileiro por ponto pro Python)
     const parseNumber = (match) =>
       match ? parseFloat(match[1].replace(",", ".")) : 0;
 
     const payload = {
-      food_name: alimento.food_name,
+      food_name: nomeEditado.trim() || alimento.food_name,
       calories: parseNumber(matchCal),
       carbs: parseNumber(matchCarbs),
       protein: parseNumber(matchProt),
       fat: parseNumber(matchFat),
+      tipo_refeicao: refeicaoSelecionada,
       paciente_id: parseInt(pacienteSelecionado),
     };
 
@@ -108,22 +123,50 @@ function Alimentos() {
       });
 
       if (response.ok) {
-        alert(
-          `✅ ${alimento.food_name} adicionado à dieta do paciente com sucesso!`,
+        mostrarFeedback(
+          `✅ "${payload.food_name}" adicionado com sucesso!`,
+          "sucesso",
         );
+        setIdEditando(null);
       } else {
         throw new Error("Erro ao salvar no banco");
       }
     } catch (err) {
-      alert(
-        "❌ Erro ao adicionar alimento. Verifique se o Back-End está rodando.",
+      mostrarFeedback(
+        "Erro ao salvar o alimento. Verifique o servidor.",
+        "erro",
       );
       console.error(err);
     }
   };
 
   return (
-    <section className="info-alimentacao" style={{ padding: "40px 20px" }}>
+    <section
+      className="info-alimentacao"
+      style={{ padding: "40px 20px", position: "relative" }}
+    >
+      {/* NOTIFICAÇÃO FLUTUANTE DE FEEDBACK */}
+      {toast.texto && (
+        <div
+          style={{
+            position: "fixed",
+            top: "20px",
+            right: "20px",
+            zIndex: 9999,
+            backgroundColor: toast.tipo === "erro" ? "#f8d7da" : "#d4edda",
+            color: toast.tipo === "erro" ? "#721c24" : "#155724",
+            padding: "15px 25px",
+            borderRadius: "8px",
+            boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+            fontWeight: "bold",
+            borderLeft: `5px solid ${toast.tipo === "erro" ? "#dc3545" : "#28a745"}`,
+            transition: "opacity 0.3s ease-in-out",
+          }}
+        >
+          {toast.texto}
+        </div>
+      )}
+
       <div
         className="container-principal"
         style={{ maxWidth: "1200px", margin: "0 auto" }}
@@ -135,10 +178,9 @@ function Alimentos() {
             marginBottom: "10px",
           }}
         >
-          Consulta de Alimentos (FatSecret)
+          Consulta de Alimentos
         </h1>
 
-        {/* === SELEÇÃO DE PACIENTE === */}
         <div
           style={{
             display: "flex",
@@ -152,11 +194,14 @@ function Alimentos() {
               padding: "15px",
               borderRadius: "8px",
               border: "1px solid #ced4da",
+              display: "flex",
+              alignItems: "center",
+              flexWrap: "wrap",
+              gap: "10px",
             }}
           >
-            <label style={{ fontWeight: "bold", marginRight: "10px" }}>
-              Adicionar dieta para:
-            </label>
+            {/* SELEÇÃO DO PACIENTE */}
+            <label style={{ fontWeight: "bold" }}>Adicionar dieta para:</label>
             <select
               value={pacienteSelecionado}
               onChange={(e) => setPacienteSelecionado(e.target.value)}
@@ -173,10 +218,29 @@ function Alimentos() {
                 </option>
               ))}
             </select>
+
+            <label style={{ fontWeight: "bold", marginLeft: "10px" }}>
+              Para o:
+            </label>
+            <select
+              value={refeicaoSelecionada}
+              onChange={(e) => setRefeicaoSelecionada(e.target.value)}
+              style={{
+                padding: "8px",
+                borderRadius: "5px",
+                border: "1px solid #ccc",
+              }}
+            >
+              <option value="Café da Manhã">Café da Manhã</option>
+              <option value="Lanche da Manhã">Lanche da Manhã</option>
+              <option value="Almoço">Almoço</option>
+              <option value="Lanche da Tarde">Lanche da Tarde</option>
+              <option value="Jantar">Jantar</option>
+              <option value="Ceia">Ceia</option>
+            </select>
           </div>
         </div>
 
-        {/* Barra de Pesquisa */}
         <form
           onSubmit={buscarAlimentos}
           style={{
@@ -188,7 +252,7 @@ function Alimentos() {
         >
           <input
             type="text"
-            placeholder="Ex: Peito de Frango..."
+            placeholder="Ex: Chicken Breast..."
             value={pesquisa}
             onChange={(e) => setPesquisa(e.target.value)}
             style={{
@@ -230,7 +294,6 @@ function Alimentos() {
           </p>
         )}
 
-        {/* Resultados da Pesquisa em Cards */}
         <div
           style={{
             display: "grid",
@@ -257,44 +320,132 @@ function Alimentos() {
                   style={{
                     fontSize: "1.2rem",
                     color: "#333",
-                    marginBottom: "15px",
+                    marginBottom: "8px",
                   }}
                 >
                   {alimento.food_name}
                 </h2>
+
+                {alimento.brand_name && (
+                  <span
+                    style={{
+                      display: "inline-block",
+                      backgroundColor: "#e9ecef",
+                      color: "#495057",
+                      padding: "4px 10px",
+                      borderRadius: "15px",
+                      fontSize: "0.85rem",
+                      fontWeight: "bold",
+                      marginBottom: "15px",
+                    }}
+                  >
+                    🏢 Marca: {alimento.brand_name}
+                  </span>
+                )}
+
                 <p
                   style={{
                     color: "#666",
                     lineHeight: "1.6",
                     fontSize: "0.95rem",
                     marginBottom: "20px",
+                    marginTop: alimento.brand_name ? "10px" : "0",
                   }}
                 >
                   {alimento.food_description}
                 </p>
               </div>
 
-              {/* === BOTÃO DE SALVAR NO BANCO === */}
-              <button
-                onClick={() => adicionarNaDieta(alimento)}
-                style={{
-                  width: "100%",
-                  padding: "10px",
-                  backgroundColor: "#0d6efd",
-                  color: "white",
-                  border: "none",
-                  borderRadius: "5px",
-                  cursor: "pointer",
-                  fontWeight: "bold",
-                  transition: "0.2s",
-                }}
-                onMouseOver={(e) =>
-                  (e.target.style.backgroundColor = "#0b5ed7")
-                }
-                onMouseOut={(e) => (e.target.style.backgroundColor = "#0d6efd")}
-              >
-                + Adicionar à Dieta
-              </button>
+              {idEditando === alimento.food_id ? (
+                <div
+                  style={{
+                    marginTop: "10px",
+                    padding: "15px",
+                    backgroundColor: "#f8f9fa",
+                    borderRadius: "8px",
+                    border: "1px dashed #ccc",
+                  }}
+                >
+                  <label
+                    style={{
+                      display: "block",
+                      fontSize: "0.85rem",
+                      color: "#666",
+                      marginBottom: "5px",
+                      fontWeight: "bold",
+                    }}
+                  >
+                    Ajustar nome:
+                  </label>
+                  <input
+                    type="text"
+                    value={nomeEditado}
+                    onChange={(e) => setNomeEditado(e.target.value)}
+                    style={{
+                      width: "100%",
+                      padding: "8px",
+                      marginBottom: "10px",
+                      borderRadius: "5px",
+                      border: "1px solid #ced4da",
+                    }}
+                  />
+                  <div style={{ display: "flex", gap: "10px" }}>
+                    <button
+                      onClick={() => confirmarAdicao(alimento)}
+                      style={{
+                        flex: 1,
+                        padding: "8px",
+                        backgroundColor: "#28a745",
+                        color: "white",
+                        border: "none",
+                        borderRadius: "5px",
+                        cursor: "pointer",
+                        fontWeight: "bold",
+                      }}
+                    >
+                      Salvar
+                    </button>
+                    <button
+                      onClick={() => setIdEditando(null)}
+                      style={{
+                        flex: 1,
+                        padding: "8px",
+                        backgroundColor: "#dc3545",
+                        color: "white",
+                        border: "none",
+                        borderRadius: "5px",
+                        cursor: "pointer",
+                        fontWeight: "bold",
+                      }}
+                    >
+                      Cancelar
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <button
+                  onClick={() => iniciarAdicao(alimento)}
+                  style={{
+                    width: "100%",
+                    padding: "10px",
+                    backgroundColor: "#0d6efd",
+                    color: "white",
+                    border: "none",
+                    borderRadius: "5px",
+                    cursor: "pointer",
+                    fontWeight: "bold",
+                    transition: "0.2s",
+                  }}
+                  onMouseOver={(e) =>
+                    (e.target.style.backgroundColor = "#0b5ed7")
+                  }
+                  onMouseOut={(e) =>
+                    (e.target.style.backgroundColor = "#0d6efd")
+                  }
+                >
+                  + Adicionar à Dieta
+                </button>
+              )}
             </div>
           ))}
         </div>
