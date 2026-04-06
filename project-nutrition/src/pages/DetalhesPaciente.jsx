@@ -1,15 +1,8 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  Legend,
-} from "recharts";
+import PacienteInfoCard from "../components/PacienteInfoCard";
+import PlanoAlimentar from "../components/PlanoAlimentar";
+import GraficosEvolucao from "../components/GraficosEvolucao";
 
 function DetalhesPaciente() {
   const { id } = useParams();
@@ -18,17 +11,25 @@ function DetalhesPaciente() {
   const [loading, setLoading] = useState(true);
   const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
-  // Estados para o formulário de Histórico
+  // Estados para o formulario de Historico
   const [novaAvaliacao, setNovaAvaliacao] = useState({
     data_registro: "",
     peso: "",
     gordura: "",
   });
 
+  // Estados para compartilhamento
+  const [showSharePanel, setShowSharePanel] = useState(false);
+  const [shareLinks, setShareLinks] = useState([]);
+  const [newLinkLabel, setNewLinkLabel] = useState("");
+  const [newLinkExpiry, setNewLinkExpiry] = useState("");
+  const [copiedId, setCopiedId] = useState(null);
+  const [shareLoading, setShareLoading] = useState(false);
+
   const buscarDadosPaciente = () => {
     fetch(`${API_BASE}/api/nutrition/${id}`)
       .then((res) => {
-        if (!res.ok) throw new Error("Paciente não encontrado");
+        if (!res.ok) throw new Error("Paciente nao encontrado");
         return res.json();
       })
       .then((data) => {
@@ -45,22 +46,21 @@ function DetalhesPaciente() {
     buscarDadosPaciente();
   }, [id]);
 
-  // --- LÓGICA DE EXCLUSÃO ---
+  // --- LOGICA DE EXCLUSAO ---
   const excluirPaciente = async () => {
     if (
       !window.confirm(
-        "🚨 Tem certeza absoluta? Isso apagará este paciente, a dieta e todo o histórico dele para sempre!",
+        "Tem certeza absoluta? Isso apagara este paciente, a dieta e todo o historico dele para sempre!"
       )
     )
       return;
 
     try {
-      const response = await fetch(
-        `${API_BASE}/api/nutrition/${id}`,
-        { method: "DELETE" },
-      );
+      const response = await fetch(`${API_BASE}/api/nutrition/${id}`, {
+        method: "DELETE",
+      });
       if (response.ok) {
-        alert("Paciente excluído com sucesso.");
+        alert("Paciente excluido com sucesso.");
         navigate("/gestao");
       } else throw new Error("Erro ao excluir paciente");
     } catch (err) {
@@ -75,10 +75,10 @@ function DetalhesPaciente() {
     try {
       const response = await fetch(
         `${API_BASE}/api/refeicoes/${idRefeicao}`,
-        { method: "DELETE" },
+        { method: "DELETE" }
       );
       if (response.ok) {
-        buscarDadosPaciente(); // Recarrega a tela para o alimento sumir
+        buscarDadosPaciente();
       } else throw new Error("Erro ao excluir alimento");
     } catch (err) {
       alert("Erro ao excluir o alimento do banco de dados.");
@@ -105,43 +105,112 @@ function DetalhesPaciente() {
       if (response.ok) {
         setNovaAvaliacao({ data_registro: "", peso: "", gordura: "" });
         buscarDadosPaciente();
-      } else throw new Error("Erro ao salvar histórico");
+      } else throw new Error("Erro ao salvar historico");
     } catch (err) {
       console.error(err);
-      alert("Erro ao salvar a avaliação no banco de dados.");
+      alert("Erro ao salvar a avaliacao no banco de dados.");
+    }
+  };
+
+  // --- LOGICA DE COMPARTILHAMENTO ---
+  const carregarLinks = async () => {
+    try {
+      const res = await fetch(`${API_BASE}/api/nutrition/${id}/shares?active_only=true`);
+      if (res.ok) {
+        const data = await res.json();
+        setShareLinks(data);
+      }
+    } catch (err) {
+      console.error("Erro ao carregar links:", err);
+    }
+  };
+
+  const toggleSharePanel = () => {
+    const novoEstado = !showSharePanel;
+    setShowSharePanel(novoEstado);
+    if (novoEstado) carregarLinks();
+  };
+
+  const gerarLink = async () => {
+    setShareLoading(true);
+    try {
+      const body = {};
+      if (newLinkExpiry) body.expires_in_days = parseInt(newLinkExpiry);
+      if (newLinkLabel.trim()) body.label = newLinkLabel.trim();
+
+      const res = await fetch(`${API_BASE}/api/nutrition/${id}/share`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+
+      if (res.ok) {
+        setNewLinkLabel("");
+        setNewLinkExpiry("");
+        carregarLinks();
+      }
+    } catch (err) {
+      alert("Erro ao gerar link de compartilhamento.");
+      console.error(err);
+    } finally {
+      setShareLoading(false);
+    }
+  };
+
+  const revogarLink = async (tokenId) => {
+    if (!window.confirm("Revogar este link? Quem tiver o link nao podera mais acessar.")) return;
+    try {
+      const res = await fetch(`${API_BASE}/api/nutrition/${id}/share/${tokenId}`, {
+        method: "DELETE",
+      });
+      if (res.ok) carregarLinks();
+    } catch (err) {
+      alert("Erro ao revogar link.");
+      console.error(err);
+    }
+  };
+
+  const copiarLink = async (token, tokenId) => {
+    const url = `${window.location.origin}/public/${token}`;
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopiedId(tokenId);
+      setTimeout(() => setCopiedId(null), 2000);
+    } catch {
+      // Fallback para navegadores que nao suportam clipboard API
+      const input = document.createElement("input");
+      input.value = url;
+      document.body.appendChild(input);
+      input.select();
+      document.execCommand("copy");
+      document.body.removeChild(input);
+      setCopiedId(tokenId);
+      setTimeout(() => setCopiedId(null), 2000);
     }
   };
 
   if (loading)
     return (
-      <h2 style={{ textAlign: "center", marginTop: "50px", color: "#4c546c" }}>
-        Carregando Prontuário...
+      <h2
+        style={{ textAlign: "center", marginTop: "50px", color: "#4c546c" }}
+      >
+        Carregando Prontuario...
       </h2>
     );
   if (!dadosPaciente)
     return (
       <h2 style={{ textAlign: "center", marginTop: "50px" }}>
-        Paciente não encontrado.
+        Paciente nao encontrado.
       </h2>
     );
 
   const historicoReal = dadosPaciente.historico || [];
 
-  // Ordem oficial das refeições para desenharmos na tela
-  const ordemRefeicoes = [
-    "Café da Manhã",
-    "Lanche da Manhã",
-    "Almoço",
-    "Lanche da Tarde",
-    "Jantar",
-    "Ceia",
-  ];
-
   return (
     <section
       style={{ padding: "40px 20px", maxWidth: "1200px", margin: "0 auto" }}
     >
-      {/* CABEÇALHO */}
+      {/* CABECALHO */}
       <div
         style={{
           display: "flex",
@@ -160,7 +229,7 @@ function DetalhesPaciente() {
               margin: "0 0 10px 0",
             }}
           >
-            Prontuário: {dadosPaciente.name}
+            Prontuario: {dadosPaciente.name}
           </h1>
           <span
             style={{
@@ -171,11 +240,25 @@ function DetalhesPaciente() {
               fontWeight: "bold",
             }}
           >
-            Objetivo: {dadosPaciente.objective || "Não definido"}
+            Objetivo: {dadosPaciente.objective || "Nao definido"}
           </span>
         </div>
 
-        <div style={{ display: "flex", gap: "10px" }}>
+        <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
+          <button
+            onClick={toggleSharePanel}
+            style={{
+              backgroundColor: showSharePanel ? "#00897b" : "#009688",
+              color: "white",
+              border: "none",
+              padding: "10px 20px",
+              borderRadius: "8px",
+              fontWeight: "bold",
+              cursor: "pointer",
+            }}
+          >
+            {showSharePanel ? "Fechar Compartilhamento" : "Compartilhar"}
+          </button>
           <Link
             to="/alimentos"
             style={{
@@ -206,217 +289,214 @@ function DetalhesPaciente() {
         </div>
       </div>
 
-      {/* DADOS PESSOAIS */}
-      <div
-        style={{
-          backgroundColor: "white",
-          padding: "25px",
-          borderRadius: "15px",
-          boxShadow: "0 4px 15px rgba(0,0,0,0.05)",
-          marginBottom: "30px",
-        }}
-      >
-        <h3
-          style={{
-            borderBottom: "2px solid #f0f0f0",
-            paddingBottom: "10px",
-            marginBottom: "20px",
-            color: "#4c546c",
-          }}
-        >
-          Dados Corporais
-        </h3>
+      {/* PAINEL DE COMPARTILHAMENTO */}
+      {showSharePanel && (
         <div
           style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
-            gap: "15px",
+            backgroundColor: "#e0f2f1",
+            padding: "25px",
+            borderRadius: "15px",
+            marginBottom: "30px",
+            border: "1px solid #b2dfdb",
           }}
         >
-          <p>
-            <strong>Idade:</strong> {dadosPaciente.age} anos
-          </p>
-          <p>
-            <strong>Gênero:</strong> {dadosPaciente.gender}
-          </p>
-          <p>
-            <strong>Peso Atual:</strong> {dadosPaciente.weight} kg
-          </p>
-          <p>
-            <strong>Gordura:</strong> {dadosPaciente.body_percentage}%
-          </p>
-          <p>
-            <strong>Meta Calórica:</strong> {dadosPaciente.calories} kcal
-          </p>
-          <p>
-            <strong>Atividade:</strong> {dadosPaciente.activity_level}
-          </p>
-        </div>
-      </div>
+          <h3 style={{ color: "#00695c", marginBottom: "15px" }}>
+            Links de Compartilhamento
+          </h3>
 
-      {/* DIETA SEPARADA POR REFEIÇÃO */}
-      <div style={{ marginBottom: "40px" }}>
-        <h2
-          style={{
-            color: "#4CAF50",
-            borderBottom: "3px solid #4CAF50",
-            paddingBottom: "10px",
-            marginBottom: "25px",
-          }}
-        >
-          Plano Alimentar Prescrito
-        </h2>
-
-        {!dadosPaciente.refeicoes || dadosPaciente.refeicoes.length === 0 ? (
+          {/* Formulario para gerar novo link */}
           <div
             style={{
-              backgroundColor: "white",
-              padding: "30px",
-              borderRadius: "15px",
-              textAlign: "center",
-              color: "#999",
-              fontStyle: "italic",
+              display: "flex",
+              gap: "10px",
+              flexWrap: "wrap",
+              alignItems: "center",
+              marginBottom: "20px",
             }}
           >
-            Ainda não há alimentos na dieta. Vá em "+ Adicionar Alimentos" para
-            começar.
+            <input
+              type="text"
+              placeholder="Rotulo (opcional)"
+              value={newLinkLabel}
+              onChange={(e) => setNewLinkLabel(e.target.value)}
+              style={{
+                padding: "10px",
+                borderRadius: "5px",
+                border: "1px solid #ccc",
+                flex: "1",
+                minWidth: "150px",
+              }}
+            />
+            <select
+              value={newLinkExpiry}
+              onChange={(e) => setNewLinkExpiry(e.target.value)}
+              style={{
+                padding: "10px",
+                borderRadius: "5px",
+                border: "1px solid #ccc",
+                minWidth: "150px",
+              }}
+            >
+              <option value="">Sem expiracao</option>
+              <option value="7">7 dias</option>
+              <option value="30">30 dias</option>
+              <option value="90">90 dias</option>
+            </select>
+            <button
+              onClick={gerarLink}
+              disabled={shareLoading}
+              style={{
+                padding: "10px 20px",
+                backgroundColor: "#009688",
+                color: "white",
+                border: "none",
+                borderRadius: "5px",
+                cursor: shareLoading ? "not-allowed" : "pointer",
+                fontWeight: "bold",
+                opacity: shareLoading ? 0.7 : 1,
+              }}
+            >
+              {shareLoading ? "Gerando..." : "Gerar Link"}
+            </button>
           </div>
-        ) : (
-          <div
-            style={{ display: "flex", flexDirection: "column", gap: "20px" }}
-          >
-            {ordemRefeicoes.map((tipo) => {
-              // Filtra as comidas que pertencem a este "tipo" (ex: só almoço)
-              const comidasDestaRefeicao = dadosPaciente.refeicoes.filter(
-                (r) => r.tipo_refeicao === tipo,
-              );
 
-              if (comidasDestaRefeicao.length === 0) return null;
-
-              return (
-                <div
-                  key={tipo}
-                  style={{
-                    backgroundColor: "white",
-                    borderRadius: "15px",
-                    overflow: "hidden",
-                    boxShadow: "0 4px 10px rgba(0,0,0,0.05)",
-                  }}
-                >
-                  <div
+          {/* Lista de links ativos */}
+          {shareLinks.length === 0 ? (
+            <p style={{ color: "#666", fontStyle: "italic" }}>
+              Nenhum link ativo. Gere um link acima para compartilhar.
+            </p>
+          ) : (
+            <div style={{ overflowX: "auto" }}>
+              <table
+                style={{
+                  width: "100%",
+                  borderCollapse: "collapse",
+                  backgroundColor: "white",
+                  borderRadius: "10px",
+                  overflow: "hidden",
+                }}
+              >
+                <thead>
+                  <tr
                     style={{
-                      backgroundColor: "#f8f9fa",
-                      padding: "15px 20px",
-                      borderBottom: "1px solid #dee2e6",
-                      fontWeight: "bold",
-                      color: "#2c3e50",
-                      fontSize: "1.1rem",
+                      backgroundColor: "#f5f5f5",
+                      color: "#555",
+                      fontSize: "0.85rem",
                     }}
                   >
-                    ☕ {tipo}
-                  </div>
-                  <div style={{ overflowX: "auto" }}>
-                    <table
-                      style={{
-                        width: "100%",
-                        borderCollapse: "collapse",
-                        textAlign: "left",
-                      }}
+                    <th style={{ padding: "10px 15px", textAlign: "left" }}>
+                      Rotulo
+                    </th>
+                    <th style={{ padding: "10px 15px", textAlign: "left" }}>
+                      Criado em
+                    </th>
+                    <th style={{ padding: "10px 15px", textAlign: "left" }}>
+                      Expira em
+                    </th>
+                    <th style={{ padding: "10px 15px", textAlign: "center" }}>
+                      Acessos
+                    </th>
+                    <th style={{ padding: "10px 15px", textAlign: "center" }}>
+                      Acoes
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {shareLinks.map((link) => (
+                    <tr
+                      key={link.id}
+                      style={{ borderTop: "1px solid #eee" }}
                     >
-                      <thead>
-                        <tr style={{ color: "#6c757d", fontSize: "0.9rem" }}>
-                          <th style={{ padding: "12px 20px" }}>Alimento</th>
-                          <th style={{ padding: "12px 20px" }}>Calorias</th>
-                          <th style={{ padding: "12px 20px" }}>Carbos</th>
-                          <th style={{ padding: "12px 20px" }}>Proteínas</th>
-                          <th style={{ padding: "12px 20px" }}>Gorduras</th>
-                          <th
-                            style={{
-                              padding: "12px 20px",
-                              textAlign: "center",
-                            }}
-                          >
-                            Ação
-                          </th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {comidasDestaRefeicao.map((comida) => (
-                          <tr
-                            key={comida.id}
-                            style={{ borderTop: "1px solid #eee" }}
-                          >
-                            <td
-                              style={{
-                                padding: "12px 20px",
-                                fontWeight: "bold",
-                                color: "#333",
-                              }}
-                            >
-                              {comida.food_name}
-                            </td>
-                            <td
-                              style={{
-                                padding: "12px 20px",
-                                color: "#e67e22",
-                                fontWeight: "bold",
-                              }}
-                            >
-                              {comida.calories} kcal
-                            </td>
-                            <td style={{ padding: "12px 20px" }}>
-                              {comida.carbs} g
-                            </td>
-                            <td style={{ padding: "12px 20px" }}>
-                              {comida.protein} g
-                            </td>
-                            <td style={{ padding: "12px 20px" }}>
-                              {comida.fat} g
-                            </td>
-                            <td
-                              style={{
-                                padding: "12px 20px",
-                                textAlign: "center",
-                              }}
-                            >
-                              <button
-                                onClick={() => excluirAlimento(comida.id)}
-                                style={{
-                                  backgroundColor: "transparent",
-                                  color: "#dc3545",
-                                  border: "1px solid #dc3545",
-                                  borderRadius: "5px",
-                                  padding: "5px 10px",
-                                  cursor: "pointer",
-                                  fontSize: "0.85rem",
-                                  transition: "0.2s",
-                                }}
-                                onMouseOver={(e) => {
-                                  e.target.style.backgroundColor = "#dc3545";
-                                  e.target.style.color = "white";
-                                }}
-                                onMouseOut={(e) => {
-                                  e.target.style.backgroundColor =
-                                    "transparent";
-                                  e.target.style.color = "#dc3545";
-                                }}
-                              >
-                                Excluir
-                              </button>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
-      </div>
+                      <td style={{ padding: "10px 15px", color: "#333" }}>
+                        {link.label || "Sem rotulo"}
+                      </td>
+                      <td style={{ padding: "10px 15px", color: "#666" }}>
+                        {new Date(link.created_at).toLocaleDateString("pt-BR")}
+                      </td>
+                      <td style={{ padding: "10px 15px", color: "#666" }}>
+                        {link.expires_at
+                          ? new Date(link.expires_at).toLocaleDateString("pt-BR")
+                          : "Nunca"}
+                      </td>
+                      <td
+                        style={{
+                          padding: "10px 15px",
+                          textAlign: "center",
+                          fontWeight: "bold",
+                          color: "#009688",
+                        }}
+                      >
+                        {link.access_count}
+                      </td>
+                      <td
+                        style={{
+                          padding: "10px 15px",
+                          textAlign: "center",
+                          display: "flex",
+                          gap: "8px",
+                          justifyContent: "center",
+                        }}
+                      >
+                        <button
+                          onClick={() => copiarLink(link.token, link.id)}
+                          style={{
+                            backgroundColor:
+                              copiedId === link.id ? "#4CAF50" : "#0d6efd",
+                            color: "white",
+                            border: "none",
+                            borderRadius: "5px",
+                            padding: "5px 12px",
+                            cursor: "pointer",
+                            fontSize: "0.85rem",
+                            transition: "0.2s",
+                            minWidth: "75px",
+                          }}
+                        >
+                          {copiedId === link.id ? "Copiado!" : "Copiar"}
+                        </button>
+                        <button
+                          onClick={() => revogarLink(link.id)}
+                          style={{
+                            backgroundColor: "transparent",
+                            color: "#dc3545",
+                            border: "1px solid #dc3545",
+                            borderRadius: "5px",
+                            padding: "5px 12px",
+                            cursor: "pointer",
+                            fontSize: "0.85rem",
+                            transition: "0.2s",
+                          }}
+                          onMouseOver={(e) => {
+                            e.target.style.backgroundColor = "#dc3545";
+                            e.target.style.color = "white";
+                          }}
+                          onMouseOut={(e) => {
+                            e.target.style.backgroundColor = "transparent";
+                            e.target.style.color = "#dc3545";
+                          }}
+                        >
+                          Revogar
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      )}
 
-      {/* FORMULÁRIO DE AVALIAÇÃO */}
+      {/* DADOS PESSOAIS */}
+      <PacienteInfoCard dadosPaciente={dadosPaciente} />
+
+      {/* DIETA SEPARADA POR REFEICAO */}
+      <PlanoAlimentar
+        refeicoes={dadosPaciente.refeicoes}
+        onExcluirAlimento={excluirAlimento}
+      />
+
+      {/* FORMULARIO DE AVALIACAO */}
       <div
         style={{
           backgroundColor: "#f8f9fa",
@@ -427,9 +507,13 @@ function DetalhesPaciente() {
         }}
       >
         <h3
-          style={{ color: "#4c546c", marginBottom: "15px", fontSize: "1.2rem" }}
+          style={{
+            color: "#4c546c",
+            marginBottom: "15px",
+            fontSize: "1.2rem",
+          }}
         >
-          + Lançar Nova Avaliação (Histórico)
+          + Lancar Nova Avaliacao (Historico)
         </h3>
         <form
           onSubmit={salvarHistorico}
@@ -442,7 +526,7 @@ function DetalhesPaciente() {
         >
           <input
             type="text"
-            placeholder="Mês (ex: Abril/2026)"
+            placeholder="Mes (ex: Abril/2026)"
             value={novaAvaliacao.data_registro}
             onChange={(e) =>
               setNovaAvaliacao({
@@ -482,7 +566,10 @@ function DetalhesPaciente() {
             placeholder="% Gordura"
             value={novaAvaliacao.gordura}
             onChange={(e) =>
-              setNovaAvaliacao({ ...novaAvaliacao, gordura: e.target.value })
+              setNovaAvaliacao({
+                ...novaAvaliacao,
+                gordura: e.target.value,
+              })
             }
             required
             style={{
@@ -505,109 +592,15 @@ function DetalhesPaciente() {
               fontWeight: "bold",
             }}
           >
-            Salvar Evolução
+            Salvar Evolucao
           </button>
         </form>
       </div>
 
-      {/* ÁREA DOS GRÁFICOS */}
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
-          gap: "30px",
-        }}
-      >
-        <div
-          style={{
-            backgroundColor: "white",
-            padding: "25px",
-            borderRadius: "15px",
-            boxShadow: "0 4px 15px rgba(0,0,0,0.05)",
-          }}
-        >
-          <h3
-            style={{
-              color: "#4c546c",
-              marginBottom: "20px",
-              textAlign: "center",
-            }}
-          >
-            Evolução do Peso (kg)
-          </h3>
-          {historicoReal.length > 0 ? (
-            <ResponsiveContainer width="100%" height={300}>
-              <LineChart
-                data={historicoReal}
-                margin={{ top: 5, right: 20, bottom: 5, left: 0 }}
-              >
-                <CartesianGrid stroke="#eee" strokeDasharray="3 3" />
-                <XAxis dataKey="data_registro" />
-                <YAxis domain={["dataMin - 2", "dataMax + 2"]} />
-                <Tooltip /> <Legend />
-                <Line
-                  type="monotone"
-                  dataKey="peso"
-                  name="Peso (kg)"
-                  stroke="#4c546c"
-                  strokeWidth={4}
-                  activeDot={{ r: 7 }}
-                />
-              </LineChart>
-            </ResponsiveContainer>
-          ) : (
-            <p style={{ textAlign: "center", color: "#999" }}>
-              Adicione avaliações para gerar o gráfico.
-            </p>
-          )}
-        </div>
+      {/* AREA DOS GRAFICOS */}
+      <GraficosEvolucao historico={historicoReal} />
 
-        <div
-          style={{
-            backgroundColor: "white",
-            padding: "25px",
-            borderRadius: "15px",
-            boxShadow: "0 4px 15px rgba(0,0,0,0.05)",
-          }}
-        >
-          <h3
-            style={{
-              color: "#ff7300",
-              marginBottom: "20px",
-              textAlign: "center",
-            }}
-          >
-            Percentual de Gordura (%)
-          </h3>
-          {historicoReal.length > 0 ? (
-            <ResponsiveContainer width="100%" height={300}>
-              <LineChart
-                data={historicoReal}
-                margin={{ top: 5, right: 20, bottom: 5, left: 0 }}
-              >
-                <CartesianGrid stroke="#eee" strokeDasharray="3 3" />
-                <XAxis dataKey="data_registro" />
-                <YAxis domain={["dataMin - 1", "dataMax + 1"]} />
-                <Tooltip /> <Legend />
-                <Line
-                  type="monotone"
-                  dataKey="gordura"
-                  name="Gordura (%)"
-                  stroke="#ff7300"
-                  strokeWidth={4}
-                  activeDot={{ r: 7 }}
-                />
-              </LineChart>
-            </ResponsiveContainer>
-          ) : (
-            <p style={{ textAlign: "center", color: "#999" }}>
-              Adicione avaliações para gerar o gráfico.
-            </p>
-          )}
-        </div>
-      </div>
-
-      {/*BOTÃO VOLTAR */}
+      {/* BOTAO VOLTAR */}
       <div style={{ marginTop: "50px", textAlign: "center" }}>
         <button
           onClick={() => navigate("/gestao")}
@@ -626,7 +619,7 @@ function DetalhesPaciente() {
           onMouseOver={(e) => (e.target.style.transform = "scale(1.05)")}
           onMouseOut={(e) => (e.target.style.transform = "scale(1)")}
         >
-          ⬅ Voltar para Meus Pacientes
+          Voltar para Meus Pacientes
         </button>
       </div>
     </section>
