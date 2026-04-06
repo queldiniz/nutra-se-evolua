@@ -16,6 +16,7 @@ function DetalhesPaciente() {
   const navigate = useNavigate();
   const [dadosPaciente, setDadosPaciente] = useState(null);
   const [loading, setLoading] = useState(true);
+  const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
   // Estados para o formulário de Histórico
   const [novaAvaliacao, setNovaAvaliacao] = useState({
@@ -25,7 +26,7 @@ function DetalhesPaciente() {
   });
 
   const buscarDadosPaciente = () => {
-    fetch(`http://localhost:5000/api/nutrition/${id}`)
+    fetch(`${API_BASE}/api/nutrition/${id}`)
       .then((res) => {
         if (!res.ok) throw new Error("Paciente não encontrado");
         return res.json();
@@ -55,7 +56,7 @@ function DetalhesPaciente() {
 
     try {
       const response = await fetch(
-        `http://localhost:5000/api/nutrition/${id}`,
+        `${API_BASE}/api/nutrition/${id}`,
         { method: "DELETE" },
       );
       if (response.ok) {
@@ -73,7 +74,7 @@ function DetalhesPaciente() {
 
     try {
       const response = await fetch(
-        `http://localhost:5000/api/refeicoes/${idRefeicao}`,
+        `${API_BASE}/api/refeicoes/${idRefeicao}`,
         { method: "DELETE" },
       );
       if (response.ok) {
@@ -95,7 +96,7 @@ function DetalhesPaciente() {
     };
 
     try {
-      const response = await fetch("http://localhost:5000/api/historico/", {
+      const response = await fetch(`${API_BASE}/api/historico/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),

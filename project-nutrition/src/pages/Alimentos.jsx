@@ -18,9 +18,10 @@ function Alimentos() {
   const [idEditando, setIdEditando] = useState(null);
   const [nomeEditado, setNomeEditado] = useState("");
 
-  const API_URL_FATSECRET = "http://localhost:5000/api/alimentos/buscar";
-  const API_URL_PACIENTES = "http://localhost:5000/api/nutrition/";
-  const API_URL_REFEICOES = "http://localhost:5000/api/refeicoes";
+  const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5000";
+  const API_URL_FATSECRET = `${API_BASE}/api/alimentos/buscar`;
+  const API_URL_PACIENTES = `${API_BASE}/api/nutrition/`;
+  const API_URL_REFEICOES = `${API_BASE}/api/refeicoes`;
 
   useEffect(() => {
     fetch(API_URL_PACIENTES)
