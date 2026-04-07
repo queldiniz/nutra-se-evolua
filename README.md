@@ -128,7 +128,7 @@ project-nutrition/
 ## 📂 Fluxograma do Projeto
 
 <p align="center">
-  <img src="public/img/fluxograma-front-end.png" alt="Fluxograma" />
+  <img src="project-nutrition/public/img/fluxograma-front-end.png" alt="Fluxograma" />
 </p>
 ## 📂 API FatSecret
 Para executar o projeto completo e fazer as buscas funcionarem na sua máquina local, é obrigatório realizar as configurações abaixo na sua API Back-End:
