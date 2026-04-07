@@ -56,6 +56,15 @@ function Gestao() {
       }
     }
 
+    if (name === "peso" || name === "gordura") {
+      let apenasNumeros = value.replace(/\D/g, "");
+      if (apenasNumeros.length > 2) {
+        value = apenasNumeros.replace(/(\d+)(\d{2})$/, "$1.$2");
+      } else {
+        value = apenasNumeros;
+      }
+    }
+
     setForm({ ...form, [name]: value });
   };
 
@@ -131,6 +140,7 @@ function Gestao() {
         fontFamily: "Poppins, sans-serif",
       }}
     >
+      {/*CABEÇALHO COM BOTÃO NOVO PACIENTE */}
       <div
         style={{
           display: "flex",
@@ -165,6 +175,7 @@ function Gestao() {
         </button>
       </div>
 
+      {/* --- BARRA DE PESQUISA --- */}
       <div
         style={{
           display: "flex",
@@ -190,6 +201,7 @@ function Gestao() {
         />
       </div>
 
+      {/* --- GRID DE CARDS --- */}
       {loading ? (
         <h3 style={{ textAlign: "center", color: "#6c757d" }}>
           Carregando prontuários...
@@ -278,6 +290,7 @@ function Gestao() {
         </div>
       )}
 
+      {/* MODAL DE CADASTRO FLUTUANTE */}
       {mostrarModal && (
         <div
           style={{
@@ -433,12 +446,12 @@ function Gestao() {
                   }}
                 />
                 <input
-                  type="number"
+                  type="text"
                   name="peso"
                   value={form.peso}
                   onChange={handleChange}
                   placeholder="Peso (kg)"
-                  step="0.1"
+                  maxLength="6"
                   required
                   style={{
                     padding: "10px",
@@ -451,12 +464,12 @@ function Gestao() {
 
               <div style={{ display: "flex", gap: "10px" }}>
                 <input
-                  type="number"
+                  type="text"
                   name="gordura"
                   value={form.gordura}
                   onChange={handleChange}
                   placeholder="% Gordura"
-                  step="0.1"
+                  maxLength="5"
                   required
                   style={{
                     padding: "10px",
