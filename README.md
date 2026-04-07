@@ -1,93 +1,88 @@
 # 🥗 Nutra-se e Evolua
 
-**Nutra-se e Evolua** é uma aplicação web interativa voltada para a gestão de saúde e bem-estar. O sistema foi desenvolvido para facilitar o acompanhamento de pacientes por profissionais da saúde, permitindo o cadastro de perfis, monitoramento de métricas corporais (peso, gordura) e visualização de progresso através de gráficos.
+**Nutra-se e Evolua** é uma aplicação web interativa voltada para a gestão de saúde e bem-estar. O sistema foi desenvolvido para facilitar o acompanhamento de pacientes por profissionais da saúde, permitindo o cadastro de perfis, monitoramento de métricas corporais, visualização de progresso através de gráficos e montagem de dietas com base em dados reais.
+
+> ⚠️ **Aviso:** Este repositório contém a interface (Front-End) do projeto. Para o funcionamento completo, certifique-se de estar rodando também a API Back-End (Python/Flask) localmente.
 
 ## 📋 Índice
 
-- [Funcionalidades](#-funcionalidades)
+- [Objetivo](#-objetivo)
+- [Como o Sistema Funciona](#-como-o-sistema-funciona)
 - [Tecnologias e Padrões](#-tecnologias-e-padrões)
 - [Pré-requisitos](#-pré-requisitos)
-- [Instalação e Configuração](#-instalação-e-configuração)
+- [Instalação e Configuração (Local)](#-instalação-e-configuração-local)
+- [Instalação com Docker (Recomendado)](#-instalação-com-docker-recomendado)
 - [Estrutura do Projeto](#-estrutura-do-projeto)
 - [Fluxograma do Projeto](#-fluxograma-do-projeto)
-- [API FatSecret](#-api-do-projeto)
+- [API FatSecret e Configuração de IP](#-api-fatsecret-e-configuração-de-ip)
 
-## ✨ Funcionalidades
+## 🎯 Objetivo
 
-### 1. Home Page
+O objetivo principal do **Nutra-se e Evolua** é fornecer uma ferramenta centralizada e responsiva para nutricionistas e personal trainers gerenciarem seus clientes. Ele substitui o uso de planilhas complexas por uma interface visual inteligente, permitindo o registro histórico de avaliações físicas, cálculo de estratégias de treino e a prescrição rápida de planos alimentares com precisão.
 
-- Interface moderna com carrossel de slides motivacionais.
-- Navegação intuitiva e informações sobre saúde mental e física.
+## ⚙️ Como o Sistema Funciona
 
-### 2. Gestão de Pacientes (Aprimorada)
+O fluxo de uso da plataforma é estruturado em quatro pilares:
 
-- **Listagem Completa:** Visualização tabular dos pacientes com tooltips informativos nos nomes.
-- **Formulário Inteligente:** - Cadastro com validação de campos obrigatórios (`required`).
-  - Feedback visual de sucesso (mensagem temporária) após o cadastro.
-  - Limpeza automática do formulário.
-  - Layout _sticky_ que acompanha a rolagem da página.
-- **Exclusão Segura:** Modal de confirmação personalizado (substituindo alertas nativos do navegador) para evitar exclusões acidentais.
-- **Cálculos Automáticos:** Definição automática de estratégia de treino baseada no objetivo do paciente.
-
-### 3. Perfil do Paciente
-
-- Dashboard individual acessado via rota dinâmica.
-- **Gráficos de Evolução:** Visualização interativa (Recharts) do histórico de **Peso** e **% de Gordura**.
-- Resumo de dados antropométricos.
-
-### 4. Responsividade e Layout
-
-- **Layout Pattern:** Utilização de um componente `DefaultLayout` para manter a consistência do Cabeçalho e Rodapé em todas as páginas.
-- Interface 100% adaptável para Celulares (menu hambúrguer, tabelas com rolagem horizontal) e Desktops.
+1. **Gestão Inteligente de Prontuários:** O profissional cadastra os pacientes com validações em tempo real e máscaras automáticas (ex: peso e percentuais com casas decimais exatas). O sistema calcula e recomenda a estratégia de treino automaticamente.
+2. **Acompanhamento de Resultados:** O profissional lança novas avaliações mês a mês no prontuário. O sistema processa os dados e desenha gráficos interativos que ilustram a evolução do peso e do percentual de gordura.
+3. **Prescrição de Dieta Integrada:** Ao montar o plano alimentar, as buscas são feitas diretamente na base global da API FatSecret. O sistema puxa as calorias e macronutrientes reais de cada porção e os adiciona à dieta do paciente, dividida por refeições.
+4. **Engajamento (Portal do Paciente):** O profissional pode gerar links públicos (Tokens UUID únicos) temporários ou permanentes. O paciente acessa esse link para visualizar seu próprio progresso e dieta em uma rota exclusiva de "somente-leitura", sem necessidade de login.
 
 ## 🚀 Tecnologias e Padrões
 
-O projeto foi desenvolvido utilizando práticas modernas de desenvolvimento web:
-
-- **[React](https://reactjs.org/):** Biblioteca JavaScript para construção da interface.
+- **[React](https://reactjs.org/):** Biblioteca principal para construção da interface.
 - **[Vite](https://vitejs.dev/):** Ferramenta de build rápida e leve.
-- **[React Router DOM](https://reactrouter.com/):** Gerenciamento de rotas e navegação SPA (Single Page Application).
+- **[React Router DOM](https://reactrouter.com/):** Gerenciamento de rotas e navegação SPA (rotas privadas e públicas).
 - **[Recharts](https://recharts.org/):** Biblioteca para criação de gráficos responsivos.
-- **CSS3:** Estilização com Flexbox e Media Queries para responsividade.
-- **Layout Components Pattern:** Arquitetura baseada em componentes de layout (`DefaultLayout`) para reutilização eficiente de estrutura.
+- **Docker:** Para containerização do projeto (Multi-Stage Build para otimização).
+- **CSS3:** Estilização com Flexbox e Media Queries.
+- **UX/UI Patterns:** Skeleton Loaders para carregamento suave de dados, Layout Patterns, Modais de confirmação seguros e formatação em tempo real.
 
 ## 📦 Pré-requisitos
 
 Antes de começar, certifique-se de ter instalado em sua máquina:
 
-- **Node.js** (Versão 16 ou superior recomendada)
+- **Node.js** (Versão 16 ou superior)
 - **npm** (Gerenciador de pacotes do Node)
+- **Docker** (Opcional, para execução via contêiner)
 
-## 🔧 Instalação e Configuração
+## 🔧 Instalação e Configuração (Local)
 
-Siga o passo a passo abaixo para rodar o projeto localmente:
+Siga o passo a passo clássico abaixo para rodar o projeto em modo de desenvolvimento na sua máquina:
 
-1.  **Clone o repositório:**
+1. **Clone o repositório:**
 
-    ```bash
-    git clone [https://github.com/seu-usuario/nutra-se-evolua.git](https://github.com/seu-usuario/nutra-se-evolua.git)
-    ```
+   ```bash
+   git clone [https://github.com/seu-usuario/nutra-se-evolua.git](https://github.com/seu-usuario/nutra-se-evolua.git)
+   ```
 
-2.  **Acesse a pasta do projeto:**
+2. **Acesse a pasta do projeto:**
 
-    ```bash
-    cd project-nutrition
-    ```
+   ```bash
+   cd project-nutrition
+   ```
 
-3.  **Instale as dependências:**
+3. **Crie as Variáveis de Ambiente**
 
-    ```bash
-    npm install
-    ```
+   ```bash
+   VITE_API_URL=http://localhost:5000
+   ```
 
-4.  **Inicie o servidor de desenvolvimento:**
+4. **Instale as dependencias**
 
-    ```bash
-    npm run dev
-    ```
+   ```bash
+   npm install
+   ```
 
-5.  **Acesse a aplicação:**
-    Abra o navegador e digite o endereço exibido no terminal (geralmente `http://localhost:5173/`).
+5. **Inicie o Servidor:**
+
+```bash
+   npm run dev
+```
+
+6. **Acesse a aplicação:**
+   Abra o navegador e digite o endereço exibido no terminal (geralmente `http://localhost:5173/`).
 
 > **Nota:** O projeto utiliza um arquivo `db.json` (localizado em `public/db.json`) para simular o banco de dados e popular os gráficos e tabelas inicialmente.
 
@@ -96,32 +91,50 @@ Siga o passo a passo abaixo para rodar o projeto localmente:
 A estrutura de arquivos foi organizada para maximizar a reutilização de componentes:
 
 ```bash
-nutra-se-evolua/
-├── public/
-│   ├── img/             # Imagens (logo, banners)
-│   └── db.json          # Base de dados simulada
+project-nutrition/
+├── public/              # Arquivos estáticos puros
 ├── src/
+│   ├── assets/          # Ícones e imagens
 │   ├── components/      # Componentes Reutilizáveis
-│   │   ├── DefaultLayout.jsx  # Moldura principal (Layout Pattern)
-│   │   ├── Header.jsx
-│   │   ├── Footer.jsx
+│   │   ├── BackToTop.jsx
 │   │   ├── Breadcrumb.jsx
-│   │   └── BackToTop.jsx
-│   ├── pages/           # Páginas da Aplicação
+│   │   ├── CardNutrition.jsx
+│   │   ├── DefaultLayout.jsx       # Moldura Base (Header/Footer)
+│   │   ├── Footer.jsx
+│   │   ├── GraficosEvolucao.jsx    # Módulo de Recharts
+│   │   ├── Header.jsx
+│   │   ├── ImageSkeleton.jsx       # UX de carregamento
+│   │   ├── PacienteInfoCard.jsx
+│   │   ├── PlanoAlimentar.jsx
+│   │   ├── SkeletonCard.jsx        # UX de carregamento
+│   │   └── WorkoutRecommendation.jsx
+│   ├── pages/           # Views Principais
+│   │   ├── Alimentos.jsx           # Busca no FatSecret
+│   │   ├── DetalhesPaciente.jsx    # Prontuário Completo
+│   │   ├── Gestao.jsx              # Tabela e Formulário de Cadastro
 │   │   ├── Home.jsx
-│   │   ├── Gestao.jsx   # Lógica de Tabela + Form + Modais
-│   │   ├── DetalhesPaciente.jsx
-│   │   └── NotFound.jsx
-│   ├── App.jsx          # Configuração de Rotas e Layout
-│   ├── index.css        # Estilos globais
-│   └── main.jsx         # Ponto de entrada
-├── package.json         # Dependências
-└── README.md            # Documentação
+│   │   ├── NotFound.jsx
+│   │   └── PublicPaciente.jsx      # View Somente-Leitura (Links Compartilhados)
+│   ├── App.jsx          # Sistema de Roteamento
+│   ├── index.css        # Estilização Global
+│   └── main.jsx         # Ponto de Entrada React
+├── docker-compose.yml   # Orquestração Docker
+├── DOCKER.md            # Documentação técnica da imagem
+├── Dockerfile           # Build Multi-estágio
+├── package.json
+└── README.md
 ```
 
 ## 📂 Fluxograma do Projeto
 
 <p align="center">
-  <img src="src/img/fluxograma-projeto.png" alt="Fluxograma" />
+  <img src="public/img/fluxograma-front-end.png" alt="Fluxograma" />
 </p>
 ## 📂 API FatSecret
+Para executar o projeto completo e fazer as buscas funcionarem na sua máquina local, é obrigatório realizar as configurações abaixo na sua API Back-End:
+
+1. **Cadastro de Desenvolvedor:** Crie uma conta gratuita no portal [FatSecret Developer](https://platform.fatsecret.com/) para obter as chaves de acesso (`Client ID` e `Client Secret`).
+2. **Variáveis de Ambiente:** Insira essas chaves no arquivo `.env` do seu servidor Back-End.
+3. **Liberação de IP (OBRIGATÓRIO):** A API do FatSecret possui um bloqueio de segurança rigoroso por IP. Para que suas buscas funcionem, você deve ir no painel do FatSecret e **cadastrar o endereço IP público da sua máquina**.
+
+> ⚠️ **Atenção:** Caso o seu IP mude (comum ao reiniciar o roteador ou acessar de outra rede), você precisará atualizar o IP no painel do FatSecret, caso contrário a aplicação retornará erro na busca de alimentos.
