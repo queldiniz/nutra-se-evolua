@@ -18,7 +18,7 @@
 
 ## 🎯 Objetivo
 
-O objetivo principal do **Nutra-se e Evolua** é fornecer uma ferramenta centralizada e responsiva para nutricionistas e personal trainers gerenciarem seus clientes. Ele substitui o uso de planilhas complexas por uma interface visual inteligente, permitindo o registro histórico de avaliações físicas, cálculo de estratégias de treino e a prescrição rápida de planos alimentares com precisão.
+O objetivo principal do **Nutra-se e Evolua** é fornecer uma ferramenta centralizada e responsiva para nutricionistas gerenciarem seus pacientes. Ele substitui o uso de papéis impressos por uma interface visual inteligente, permitindo o registro do acompanhamento e prescrição rápida de planos alimentares.
 
 ## ⚙️ Como o Sistema Funciona
 
