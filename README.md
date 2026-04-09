@@ -36,7 +36,7 @@ Fornecer uma interface centralizada e responsiva que elimine a necessidade de pl
 ## 📂 Fluxograma de Arquitetura
 
 <p align="center">
-  <img src="project-nutrition/public/img/fluxograma-front-end.png" alt="Fluxograma" />
+  <img src="project-nutrition/public/img/fluxograma-front-end.png" alt="Fluxograma" width = "450px" height="900px"/>
 </p>
 
 ## 🌐 Integração FatSecret (Consumo de Dados)
