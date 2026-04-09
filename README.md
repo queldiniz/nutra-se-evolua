@@ -37,7 +37,8 @@ Fornecer uma interface centralizada e responsiva que elimine a necessidade de pl
 
 <p align="center">
   <img src="project-nutrition/public/img/fluxograma-front-end.png" alt="Fluxograma" width = "450px" height="900px"/>
-</p>
+</p> 
+<blockquote> Uso da Ferramenta Mermaid Chart </blockquote>  
 
 ## 🌐 Integração FatSecret (Consumo de Dados)
 
