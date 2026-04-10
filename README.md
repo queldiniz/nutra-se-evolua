@@ -36,13 +36,14 @@ Fornecer uma interface centralizada e responsiva que elimine a necessidade de pl
 ## 📂 Fluxograma de Arquitetura
 
 <p align="center">
-  <img src="project-nutrition/public/img/fluxograma-front-end.png" alt="Fluxograma" width = "450px" height="900px"/>
+  <img src="project-nutrition/public/img/fluxograma-mvp3.png" alt="Fluxograma" width = "450px" height="900px"/>
 </p> 
-<blockquote> Uso da Ferramenta Mermaid Chart </blockquote>  
+<blockquote> Uso da Ferramenta Mermaid Chart </blockquote>
 
 ## 🌐 Integração FatSecret (Consumo de Dados)
 
 Embora a autenticação com a FatSecret ocorra no Back-End por segurança, o Front-End é o responsável por:
+
 - Enviar as solicitações de busca via campos de texto.
 - Processar a lista de resultados retornada pelo proxy do servidor.
 - Exibir os macronutrientes (Proteínas, Carbos e Gorduras) de forma tabular para o profissional.
@@ -99,6 +100,7 @@ project-nutrition/
 ## 🔧 Instalação Local
 
 <<<<<<< HEAD
+
 <p align="center">
   <img src="project-nutrition/public/img/fluxograma-mvp3.png" alt="Fluxograma" />
 </p>
@@ -112,16 +114,19 @@ Para executar o projeto completo e fazer as buscas funcionarem na sua máquina l
 >>>>>>> 7555b6b3c3d196a564eb428a1b443fd125d21cac
 
 2. Configure as variáveis de ambiente: Crie um arquivo .env na raiz do projeto com o seguinte conteúdo:
- ```bash
+
+```bash
 VITE_API_URL=http://localhost:5000
- ```
+```
 
 3. Instale as dependências:
- ```bash
+
+```bash
 npm install
- ```
+```
 
 4. Inicie o servidor:
- ```bash
+
+```bash
 npm run dev
- ```
+```
