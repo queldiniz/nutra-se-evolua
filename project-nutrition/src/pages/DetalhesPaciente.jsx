@@ -26,6 +26,19 @@ function DetalhesPaciente() {
 
   const [mostrarModalExclusao, setMostrarModalExclusao] = useState(false);
 
+  const [mostrarModalEdicao, setMostrarModalEdicao] = useState(false);
+  const [erroEdicao, setErroEdicao] = useState("");
+  const [mensagemSucessoEdicao, setMensagemSucessoEdicao] = useState("");
+
+  const [formEdicao, setFormEdicao] = useState({
+    name: "",
+    age: "",
+    weight: "",
+    body_percentage: "",
+    objective: "",
+    calories: "",
+  });
+
   const buscarDadosPaciente = () => {
     fetch(`${API_BASE}/api/nutrition/${id}`)
       .then((res) => {
@@ -45,6 +58,86 @@ function DetalhesPaciente() {
   useEffect(() => {
     buscarDadosPaciente();
   }, [id]);
+
+  const abrirModalEdicao = () => {
+    setErroEdicao("");
+    setMensagemSucessoEdicao("");
+    setFormEdicao({
+      name: dadosPaciente.name || "",
+      age: dadosPaciente.age || "",
+      weight: dadosPaciente.weight
+        ? parseFloat(dadosPaciente.weight).toFixed(2)
+        : "",
+      body_percentage: dadosPaciente.body_percentage
+        ? parseFloat(dadosPaciente.body_percentage).toFixed(2)
+        : "",
+      objective: dadosPaciente.objective || "",
+      calories: dadosPaciente.calories || "",
+    });
+    setMostrarModalEdicao(true);
+  };
+
+  const handleChangeEdicao = (e) => {
+    let { name, value } = e.target;
+
+    if (name === "weight" || name === "body_percentage") {
+      let apenasNumeros = value.replace(/\D/g, "");
+      if (apenasNumeros.length > 2) {
+        value = apenasNumeros.replace(/(\d+)(\d{2})$/, "$1.$2");
+      } else {
+        value = apenasNumeros;
+      }
+    }
+
+    setFormEdicao({ ...formEdicao, [name]: value });
+  };
+
+  const salvarEdicao = async (e) => {
+    e.preventDefault();
+    setErroEdicao("");
+    setMensagemSucessoEdicao("");
+
+    const payloadTratado = {
+      name: formEdicao.name,
+      objective: formEdicao.objective,
+      age: formEdicao.age !== "" ? parseInt(formEdicao.age, 10) : null,
+      calories:
+        formEdicao.calories !== "" ? parseInt(formEdicao.calories, 10) : null,
+      weight: formEdicao.weight !== "" ? parseFloat(formEdicao.weight) : null,
+      body_percentage:
+        formEdicao.body_percentage !== ""
+          ? parseFloat(formEdicao.body_percentage)
+          : null,
+      height: dadosPaciente.height,
+      gender: dadosPaciente.gender,
+      activity_level: dadosPaciente.activity_level,
+    };
+
+    try {
+      const response = await fetch(`${API_BASE}/api/nutrition/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payloadTratado),
+      });
+
+      if (response.ok) {
+        setMensagemSucessoEdicao("Paciente atualizado com sucesso!");
+        buscarDadosPaciente();
+
+        setTimeout(() => {
+          setMensagemSucessoEdicao("");
+          setMostrarModalEdicao(false);
+        }, 2000);
+      } else {
+        setErroEdicao(
+          "Não foi possível salvar as alterações. Verifique se preencheu corretamente.",
+        );
+      }
+    } catch (err) {
+      console.error(err);
+      setErroEdicao("Erro de conexão. Verifique se o servidor está rodando.");
+    }
+  };
 
   const excluirPaciente = async () => {
     try {
@@ -264,7 +357,7 @@ function DetalhesPaciente() {
           <button
             onClick={toggleSharePanel}
             style={{
-              backgroundColor: showSharePanel ? "#00897b" : "#009688",
+              backgroundColor: showSharePanel ? "#00897b" : "#00a896",
               color: "white",
               border: "none",
               padding: "10px 20px",
@@ -275,23 +368,26 @@ function DetalhesPaciente() {
           >
             {showSharePanel ? "Fechar Compartilhamento" : "Compartilhar"}
           </button>
-          <Link
-            to="/alimentos"
+
+          <button
+            onClick={abrirModalEdicao}
             style={{
-              backgroundColor: "#0d6efd",
+              backgroundColor: "#f5a623",
               color: "white",
+              border: "none",
               padding: "10px 20px",
               borderRadius: "8px",
-              textDecoration: "none",
               fontWeight: "bold",
+              cursor: "pointer",
             }}
           >
-            + Adicionar Alimentos
-          </Link>
+            Editar Paciente
+          </button>
+
           <button
             onClick={() => setMostrarModalExclusao(true)}
             style={{
-              backgroundColor: "#dc3545",
+              backgroundColor: "#ed5565",
               color: "white",
               border: "none",
               padding: "10px 20px",
@@ -304,6 +400,299 @@ function DetalhesPaciente() {
           </button>
         </div>
       </div>
+
+      {mostrarModalEdicao && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            backgroundColor: "rgba(0,0,0,0.6)",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            zIndex: 9999,
+            padding: "20px",
+          }}
+        >
+          <div
+            style={{
+              backgroundColor: "white",
+              padding: "30px",
+              borderRadius: "15px",
+              width: "100%",
+              maxWidth: "500px",
+              boxShadow: "0 10px 30px rgba(0,0,0,0.2)",
+            }}
+          >
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                borderBottom: "2px solid #eee",
+                paddingBottom: "15px",
+                marginBottom: "20px",
+              }}
+            >
+              <h2 style={{ color: "#4c546c", margin: 0 }}>
+                Editar Dados do Paciente
+              </h2>
+              <button
+                onClick={() => setMostrarModalEdicao(false)}
+                style={{
+                  background: "none",
+                  border: "none",
+                  fontSize: "1.5rem",
+                  cursor: "pointer",
+                  color: "#999",
+                }}
+              >
+                ✖
+              </button>
+            </div>
+
+            {mensagemSucessoEdicao && (
+              <div
+                style={{
+                  backgroundColor: "#d1e7dd",
+                  color: "#0f5132",
+                  padding: "10px",
+                  borderRadius: "5px",
+                  marginBottom: "15px",
+                  textAlign: "center",
+                  fontWeight: "bold",
+                }}
+              >
+                {mensagemSucessoEdicao}
+              </div>
+            )}
+
+            {erroEdicao && (
+              <div
+                style={{
+                  backgroundColor: "#f8d7da",
+                  color: "#842029",
+                  padding: "10px",
+                  borderRadius: "5px",
+                  marginBottom: "15px",
+                  textAlign: "center",
+                  fontWeight: "bold",
+                }}
+              >
+                {erroEdicao}
+              </div>
+            )}
+
+            <form
+              onSubmit={salvarEdicao}
+              style={{ display: "flex", flexDirection: "column", gap: "15px" }}
+            >
+              <div>
+                <label
+                  style={{
+                    display: "block",
+                    fontSize: "0.85rem",
+                    color: "#666",
+                    fontWeight: "bold",
+                    marginBottom: "5px",
+                  }}
+                >
+                  Nome Completo
+                </label>
+                <input
+                  type="text"
+                  name="name"
+                  value={formEdicao.name}
+                  onChange={handleChangeEdicao}
+                  placeholder="Nome Completo"
+                  required
+                  style={{
+                    width: "100%",
+                    padding: "10px",
+                    borderRadius: "5px",
+                    border: "1px solid #ccc",
+                    boxSizing: "border-box",
+                  }}
+                />
+              </div>
+
+              <div style={{ display: "flex", gap: "10px" }}>
+                <div style={{ flex: 1 }}>
+                  <label
+                    style={{
+                      display: "block",
+                      fontSize: "0.85rem",
+                      color: "#666",
+                      fontWeight: "bold",
+                      marginBottom: "5px",
+                    }}
+                  >
+                    Idade
+                  </label>
+                  <input
+                    type="number"
+                    name="age"
+                    value={formEdicao.age}
+                    onChange={handleChangeEdicao}
+                    placeholder="Idade"
+                    style={{
+                      width: "100%",
+                      padding: "10px",
+                      borderRadius: "5px",
+                      border: "1px solid #ccc",
+                      boxSizing: "border-box",
+                    }}
+                  />
+                </div>
+
+                <div style={{ flex: 1 }}>
+                  <label
+                    style={{
+                      display: "block",
+                      fontSize: "0.85rem",
+                      color: "#666",
+                      fontWeight: "bold",
+                      marginBottom: "5px",
+                    }}
+                  >
+                    Peso Inicial (kg)
+                  </label>
+                  <input
+                    type="text"
+                    name="weight"
+                    value={formEdicao.weight}
+                    onChange={handleChangeEdicao}
+                    placeholder="Peso Inicial"
+                    maxLength="6"
+                    style={{
+                      width: "100%",
+                      padding: "10px",
+                      borderRadius: "5px",
+                      border: "1px solid #ccc",
+                      boxSizing: "border-box",
+                    }}
+                  />
+                </div>
+
+                <div style={{ flex: 1 }}>
+                  <label
+                    style={{
+                      display: "block",
+                      fontSize: "0.85rem",
+                      color: "#666",
+                      fontWeight: "bold",
+                      marginBottom: "5px",
+                    }}
+                  >
+                    Gordura Atual (%)
+                  </label>
+                  <input
+                    type="text"
+                    name="body_percentage"
+                    value={formEdicao.body_percentage}
+                    onChange={handleChangeEdicao}
+                    placeholder="% Gordura"
+                    maxLength="5"
+                    style={{
+                      width: "100%",
+                      padding: "10px",
+                      borderRadius: "5px",
+                      border: "1px solid #ccc",
+                      boxSizing: "border-box",
+                    }}
+                  />
+                </div>
+              </div>
+
+              <div style={{ display: "flex", gap: "10px" }}>
+                <div style={{ flex: 1 }}>
+                  <label
+                    style={{
+                      display: "block",
+                      fontSize: "0.85rem",
+                      color: "#666",
+                      fontWeight: "bold",
+                      marginBottom: "5px",
+                    }}
+                  >
+                    Objetivo
+                  </label>
+                  <select
+                    name="objective"
+                    value={formEdicao.objective}
+                    onChange={handleChangeEdicao}
+                    style={{
+                      width: "100%",
+                      padding: "10px",
+                      borderRadius: "5px",
+                      border: "1px solid #ccc",
+                      boxSizing: "border-box",
+                      backgroundColor: "white",
+                    }}
+                  >
+                    <option value="">Selecione um objetivo</option>
+                    <option value="Emagrecimento (Secar)">
+                      Emagrecimento (Secar)
+                    </option>
+                    <option value="Hipertrofia (Ganhar Massa)">
+                      Hipertrofia (Ganhar Massa)
+                    </option>
+                    <option value="Manutenção">Manutenção</option>
+                  </select>
+                </div>
+
+                <div style={{ flex: 1 }}>
+                  <label
+                    style={{
+                      display: "block",
+                      fontSize: "0.85rem",
+                      color: "#666",
+                      fontWeight: "bold",
+                      marginBottom: "5px",
+                    }}
+                  >
+                    Meta Calórica (kcal)
+                  </label>
+                  <input
+                    type="number"
+                    name="calories"
+                    value={formEdicao.calories}
+                    onChange={handleChangeEdicao}
+                    placeholder="Meta Calórica"
+                    style={{
+                      width: "100%",
+                      padding: "10px",
+                      borderRadius: "5px",
+                      border: "1px solid #ccc",
+                      boxSizing: "border-box",
+                    }}
+                  />
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                style={{
+                  padding: "12px",
+                  backgroundColor: "#f5a623",
+                  color: "white",
+                  border: "none",
+                  borderRadius: "5px",
+                  fontWeight: "bold",
+                  cursor: "pointer",
+                  marginTop: "10px",
+                  fontSize: "1.1rem",
+                }}
+              >
+                Salvar Alterações
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
 
       {mostrarModalExclusao && (
         <div
@@ -580,6 +969,29 @@ function DetalhesPaciente() {
       )}
 
       <PacienteInfoCard dadosPaciente={dadosPaciente} />
+
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "flex-end",
+          marginBottom: "15px",
+          marginTop: "20px",
+        }}
+      >
+        <Link
+          to="/alimentos"
+          style={{
+            backgroundColor: "#4285f4",
+            color: "white",
+            padding: "10px 20px",
+            borderRadius: "8px",
+            textDecoration: "none",
+            fontWeight: "bold",
+          }}
+        >
+          + Adicionar Alimentos
+        </Link>
+      </div>
 
       <PlanoAlimentar
         refeicoes={dadosPaciente.refeicoes}
