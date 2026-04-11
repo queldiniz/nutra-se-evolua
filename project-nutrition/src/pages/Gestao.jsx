@@ -524,7 +524,7 @@ function Gestao() {
                   border: "1px solid #ccc",
                 }}
               >
-                <option value="">Objetivo da Dieta</option>
+                <option value="" disabled>Objetivo da Dieta</option>
                 <option value="Emagrecimento">Emagrecimento (Secar)</option>
                 <option value="Hipertrofia">Hipertrofia (Ganhar Massa)</option>
                 <option value="Manutenção">Manutenção</option>
