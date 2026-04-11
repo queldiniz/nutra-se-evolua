@@ -1002,6 +1002,7 @@ function DetalhesPaciente() {
       <PlanoAlimentar
         refeicoes={dadosPaciente.refeicoes}
         onExcluirAlimento={excluirAlimento}
+        metaCalorica={dadosPaciente.calories}
       />
 
       <div

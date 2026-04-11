@@ -1,4 +1,4 @@
-function PlanoAlimentar({ refeicoes, onExcluirAlimento }) {
+function PlanoAlimentar({ refeicoes, onExcluirAlimento, metaCalorica }) {
   const ordemRefeicoes = [
     "Cafe da Manha",
     "Café da Manhã",
@@ -17,6 +17,47 @@ function PlanoAlimentar({ refeicoes, onExcluirAlimento }) {
   );
 
   const showActions = typeof onExcluirAlimento === "function";
+
+  const totalCaloriasPlano =
+    refeicoes?.reduce((sum, r) => sum + (r.calories || 0), 0) ?? 0;
+  const totalCarbs =
+    refeicoes?.reduce((sum, r) => sum + (r.carbs || 0), 0) ?? 0;
+  const totalProtein =
+    refeicoes?.reduce((sum, r) => sum + (r.protein || 0), 0) ?? 0;
+  const totalFat = refeicoes?.reduce((sum, r) => sum + (r.fat || 0), 0) ?? 0;
+
+  const temMeta = metaCalorica && Number(metaCalorica) > 0;
+  const meta = temMeta ? Number(metaCalorica) : null;
+  const percentual = temMeta ? (totalCaloriasPlano / meta) * 100 : null;
+  const diferenca = temMeta ? totalCaloriasPlano - meta : null;
+
+  const getStatusInfo = (pct, diff) => {
+    const abs = Math.abs(pct - 100);
+    if (abs <= 5)
+      return {
+        color: "#27ae60",
+        bg: "#eafaf1",
+        label: `Dentro da meta calórica`,
+        icon: "✓",
+      };
+    if (pct > 100)
+      return {
+        color: "#e67e22",
+        bg: "#fef5ec",
+        label: `+${diff} kcal acima da meta`,
+        icon: "↑",
+      };
+    return {
+      color: "#3498db",
+      bg: "#ebf5fb",
+      label: `${diff} kcal abaixo da meta`,
+      icon: "↓",
+    };
+  };
+
+  const statusInfo = temMeta ? getStatusInfo(percentual, diferenca) : null;
+  const barWidth = temMeta ? Math.min(percentual, 100) : 0;
+  const barColor = statusInfo ? statusInfo.color : "#4CAF50";
 
   return (
     <div style={{ marginBottom: "40px" }}>
@@ -225,6 +266,269 @@ function PlanoAlimentar({ refeicoes, onExcluirAlimento }) {
               </div>
             );
           })}
+        </div>
+      )}
+
+      {refeicoes && refeicoes.length > 0 && (
+        <div
+          style={{
+            marginTop: "30px",
+            backgroundColor: "white",
+            borderRadius: "15px",
+            overflow: "hidden",
+            boxShadow: "0 4px 10px rgba(0,0,0,0.05)",
+          }}
+        >
+          {/* Header interno */}
+          <div
+            style={{
+              padding: "16px 24px",
+              borderBottom: "1px solid #f0f0f0",
+              display: "flex",
+              alignItems: "center",
+              gap: "8px",
+            }}
+          >
+            <span style={{ fontSize: "1rem", color: "#aaa" }}>◎</span>
+            <span
+              style={{
+                fontSize: "0.8rem",
+                fontWeight: "700",
+                color: "#aaa",
+                textTransform: "uppercase",
+                letterSpacing: "0.08em",
+              }}
+            >
+              Resumo do Plano
+            </span>
+          </div>
+
+          {/* Corpo principal */}
+          <div style={{ padding: "24px" }}>
+            {/* Linha de métricas: plano | barra | meta */}
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "1fr auto 1fr",
+                alignItems: "center",
+                gap: "24px",
+                marginBottom: "20px",
+              }}
+            >
+              {/* Coluna esquerda - Total do Plano */}
+              <div>
+                <div
+                  style={{
+                    fontSize: "0.75rem",
+                    color: "#999",
+                    fontWeight: "600",
+                    textTransform: "uppercase",
+                    letterSpacing: "0.06em",
+                    marginBottom: "4px",
+                  }}
+                >
+                  Total do Plano
+                </div>
+                <div
+                  style={{
+                    fontSize: "2rem",
+                    fontWeight: "800",
+                    color: "#2c3e50",
+                    lineHeight: 1,
+                  }}
+                >
+                  {totalCaloriasPlano.toLocaleString("pt-BR")}
+                  <span
+                    style={{
+                      fontSize: "1rem",
+                      fontWeight: "600",
+                      color: "#999",
+                      marginLeft: "4px",
+                    }}
+                  >
+                    kcal
+                  </span>
+                </div>
+              </div>
+
+              {/* Divisor central */}
+              <div
+                style={{
+                  width: "1px",
+                  height: "48px",
+                  backgroundColor: "#eee",
+                }}
+              />
+
+              {/* Coluna direita - Meta Calórica */}
+              <div style={{ textAlign: "right" }}>
+                <div
+                  style={{
+                    fontSize: "0.75rem",
+                    color: "#999",
+                    fontWeight: "600",
+                    textTransform: "uppercase",
+                    letterSpacing: "0.06em",
+                    marginBottom: "4px",
+                  }}
+                >
+                  Meta Calórica
+                </div>
+                {temMeta ? (
+                  <div
+                    style={{
+                      fontSize: "2rem",
+                      fontWeight: "800",
+                      color: "#2c3e50",
+                      lineHeight: 1,
+                    }}
+                  >
+                    {Number(metaCalorica).toLocaleString("pt-BR")}
+                    <span
+                      style={{
+                        fontSize: "1rem",
+                        fontWeight: "600",
+                        color: "#999",
+                        marginLeft: "4px",
+                      }}
+                    >
+                      kcal
+                    </span>
+                  </div>
+                ) : (
+                  <div
+                    style={{
+                      fontSize: "1rem",
+                      color: "#ccc",
+                      fontStyle: "italic",
+                    }}
+                  >
+                    Não definida
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Barra de progresso */}
+            {temMeta && (
+              <>
+                <div
+                  style={{
+                    position: "relative",
+                    backgroundColor: "#f5f5f5",
+                    borderRadius: "999px",
+                    height: "10px",
+                    overflow: "hidden",
+                    marginBottom: "12px",
+                  }}
+                >
+                  <div
+                    style={{
+                      width: `${barWidth}%`,
+                      height: "100%",
+                      backgroundColor: barColor,
+                      borderRadius: "999px",
+                      transition: "width 0.6s ease",
+                    }}
+                  />
+                </div>
+
+                {/* Badge de status */}
+                <div
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "6px",
+                    backgroundColor: statusInfo.bg,
+                    color: statusInfo.color,
+                    padding: "6px 12px",
+                    borderRadius: "999px",
+                    fontSize: "0.85rem",
+                    fontWeight: "700",
+                    marginBottom: "24px",
+                  }}
+                >
+                  <span>{statusInfo.icon}</span>
+                  <span>{statusInfo.label}</span>
+                  <span
+                    style={{
+                      opacity: 0.65,
+                      fontWeight: "500",
+                      fontSize: "0.8rem",
+                    }}
+                  >
+                    ({percentual.toFixed(0)}%)
+                  </span>
+                </div>
+              </>
+            )}
+
+            {/* Separador */}
+            <div
+              style={{
+                height: "1px",
+                backgroundColor: "#f5f5f5",
+                marginBottom: "20px",
+              }}
+            />
+
+            {/* Macros totais */}
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(3, 1fr)",
+                gap: "12px",
+              }}
+            >
+              {[
+                { label: "Carboidratos", value: totalCarbs, color: "#f39c12" },
+                { label: "Proteínas", value: totalProtein, color: "#9b59b6" },
+                { label: "Gorduras", value: totalFat, color: "#e74c3c" },
+              ].map(({ label, value, color }) => (
+                <div
+                  key={label}
+                  style={{
+                    backgroundColor: "#fafafa",
+                    borderRadius: "10px",
+                    padding: "14px 16px",
+                    borderLeft: `3px solid ${color}`,
+                  }}
+                >
+                  <div
+                    style={{
+                      fontSize: "0.72rem",
+                      color: "#aaa",
+                      fontWeight: "600",
+                      textTransform: "uppercase",
+                      letterSpacing: "0.06em",
+                      marginBottom: "4px",
+                    }}
+                  >
+                    {label}
+                  </div>
+                  <div
+                    style={{
+                      fontSize: "1.3rem",
+                      fontWeight: "800",
+                      color: "#2c3e50",
+                    }}
+                  >
+                    {value.toLocaleString("pt-BR")}
+                    <span
+                      style={{
+                        fontSize: "0.8rem",
+                        fontWeight: "600",
+                        color: "#aaa",
+                        marginLeft: "3px",
+                      }}
+                    >
+                      g
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       )}
     </div>

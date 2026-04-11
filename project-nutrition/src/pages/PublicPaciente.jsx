@@ -23,7 +23,8 @@ function PublicPaciente() {
           setError({
             type: "not_found",
             title: "Link invalido",
-            message: "Este link nao existe ou os dados do paciente nao estao mais disponiveis.",
+            message:
+              "Este link nao existe ou os dados do paciente nao estao mais disponiveis.",
           });
         } else if (res.status === 410) {
           const data = await res.json();
@@ -39,7 +40,8 @@ function PublicPaciente() {
           setError({
             type: "server_error",
             title: "Erro no servidor",
-            message: "Ocorreu um erro ao carregar os dados. Tente novamente mais tarde.",
+            message:
+              "Ocorreu um erro ao carregar os dados. Tente novamente mais tarde.",
           });
         }
       } catch (err) {
@@ -47,7 +49,8 @@ function PublicPaciente() {
         setError({
           type: "server_error",
           title: "Erro de conexao",
-          message: "Nao foi possivel conectar ao servidor. Verifique sua conexao e tente novamente.",
+          message:
+            "Nao foi possivel conectar ao servidor. Verifique sua conexao e tente novamente.",
         });
       } finally {
         setLoading(false);
@@ -229,7 +232,10 @@ function PublicPaciente() {
 
         {/* Componentes reutilizados (sem callbacks de edicao) */}
         <PacienteInfoCard dadosPaciente={dadosPaciente} />
-        <PlanoAlimentar refeicoes={dadosPaciente.refeicoes} />
+        <PlanoAlimentar
+          refeicoes={dadosPaciente.refeicoes}
+          metaCalorica={dadosPaciente.calories}
+        />
         <GraficosEvolucao historico={historicoReal} />
       </main>
 
