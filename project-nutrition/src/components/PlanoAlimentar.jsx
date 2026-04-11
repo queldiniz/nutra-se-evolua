@@ -42,7 +42,7 @@ function PlanoAlimentar({ refeicoes, onExcluirAlimento }) {
             fontStyle: "italic",
           }}
         >
-          Ainda nao ha alimentos na dieta.
+          Ainda não há alimentos na dieta.
         </div>
       ) : (
         <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
