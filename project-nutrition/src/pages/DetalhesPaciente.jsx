@@ -558,7 +558,7 @@ function DetalhesPaciente() {
                       marginBottom: "5px",
                     }}
                   >
-                    Peso Inicial (kg)
+                    Peso Atual (kg)
                   </label>
                   <input
                     type="text"
@@ -1039,7 +1039,10 @@ function DetalhesPaciente() {
         </div>
 
         {/* Corpo do formulário */}
-        <form onSubmit={salvarHistorico} style={{ padding: "24px" }}>
+        <form
+          onSubmit={salvarHistorico}
+          style={{ padding: "24px" }}
+        >
           <div
             style={{
               display: "grid",
