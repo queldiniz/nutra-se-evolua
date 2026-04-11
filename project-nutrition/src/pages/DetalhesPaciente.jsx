@@ -1007,100 +1007,194 @@ function DetalhesPaciente() {
 
       <div
         style={{
-          backgroundColor: "#f8f9fa",
-          padding: "20px",
+          backgroundColor: "white",
           borderRadius: "15px",
+          overflow: "hidden",
+          boxShadow: "0 4px 10px rgba(0,0,0,0.05)",
           marginBottom: "30px",
-          border: "1px solid #dee2e6",
         }}
       >
-        <h3
+        {/* Header interno */}
+        <div
           style={{
-            color: "#4c546c",
-            marginBottom: "15px",
-            fontSize: "1.2rem",
-          }}
-        >
-          + Lançar Nova Avaliação (Histórico)
-        </h3>
-        <form
-          onSubmit={salvarHistorico}
-          style={{
+            padding: "16px 24px",
+            borderBottom: "1px solid #f0f0f0",
             display: "flex",
-            gap: "15px",
-            flexWrap: "wrap",
             alignItems: "center",
+            gap: "8px",
           }}
         >
-          <input
-            type="month"
-            value={novaAvaliacao.data_registro}
-            onChange={(e) =>
-              setNovaAvaliacao({
-                ...novaAvaliacao,
-                data_registro: e.target.value,
-              })
-            }
-            required
+          <span style={{ fontSize: "1rem", color: "#aaa" }}>⊕</span>
+          <span
             style={{
-              padding: "10px",
-              borderRadius: "5px",
-              border: "1px solid #ccc",
-              flex: "1",
-              minWidth: "150px",
-            }}
-          />
-          <input
-            type="number"
-            step="0.1"
-            placeholder="Peso (kg)"
-            value={novaAvaliacao.peso}
-            onChange={(e) =>
-              setNovaAvaliacao({ ...novaAvaliacao, peso: e.target.value })
-            }
-            required
-            style={{
-              padding: "10px",
-              borderRadius: "5px",
-              border: "1px solid #ccc",
-              flex: "1",
-              minWidth: "100px",
-            }}
-          />
-          <input
-            type="number"
-            step="0.1"
-            placeholder="% Gordura"
-            value={novaAvaliacao.gordura}
-            onChange={(e) =>
-              setNovaAvaliacao({
-                ...novaAvaliacao,
-                gordura: e.target.value,
-              })
-            }
-            required
-            style={{
-              padding: "10px",
-              borderRadius: "5px",
-              border: "1px solid #ccc",
-              flex: "1",
-              minWidth: "100px",
-            }}
-          />
-          <button
-            type="submit"
-            style={{
-              padding: "10px 20px",
-              backgroundColor: "#0d6efd",
-              color: "white",
-              border: "none",
-              borderRadius: "5px",
-              cursor: "pointer",
-              fontWeight: "bold",
+              fontSize: "0.8rem",
+              fontWeight: "700",
+              color: "#aaa",
+              textTransform: "uppercase",
+              letterSpacing: "0.08em",
             }}
           >
-            Salvar Evolução
-          </button>
+            Nova Avaliação
+          </span>
+        </div>
+
+        {/* Corpo do formulário */}
+        <form onSubmit={salvarHistorico} style={{ padding: "24px" }}>
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(3, 1fr)",
+              gap: "16px",
+              marginBottom: "20px",
+            }}
+          >
+            {/* Mês / Ano */}
+            <div>
+              <label
+                style={{
+                  display: "block",
+                  fontSize: "0.72rem",
+                  fontWeight: "700",
+                  color: "#aaa",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.06em",
+                  marginBottom: "6px",
+                }}
+              >
+                Mês / Ano
+              </label>
+              <input
+                type="month"
+                value={novaAvaliacao.data_registro}
+                onChange={(e) =>
+                  setNovaAvaliacao({
+                    ...novaAvaliacao,
+                    data_registro: e.target.value,
+                  })
+                }
+                required
+                style={{
+                  width: "100%",
+                  padding: "10px 12px",
+                  borderRadius: "8px",
+                  border: "1px solid #e0e0e0",
+                  fontSize: "0.95rem",
+                  color: "#2c3e50",
+                  boxSizing: "border-box",
+                  outline: "none",
+                }}
+              />
+            </div>
+
+            {/* Peso */}
+            <div>
+              <label
+                style={{
+                  display: "block",
+                  fontSize: "0.72rem",
+                  fontWeight: "700",
+                  color: "#aaa",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.06em",
+                  marginBottom: "6px",
+                }}
+              >
+                Peso (kg)
+              </label>
+              <input
+                type="number"
+                step="0.1"
+                placeholder="Ex: 72.5"
+                value={novaAvaliacao.peso}
+                onChange={(e) =>
+                  setNovaAvaliacao({ ...novaAvaliacao, peso: e.target.value })
+                }
+                required
+                style={{
+                  width: "100%",
+                  padding: "10px 12px",
+                  borderRadius: "8px",
+                  border: "1px solid #e0e0e0",
+                  fontSize: "0.95rem",
+                  color: "#2c3e50",
+                  boxSizing: "border-box",
+                  outline: "none",
+                }}
+              />
+            </div>
+
+            {/* % Gordura */}
+            <div>
+              <label
+                style={{
+                  display: "block",
+                  fontSize: "0.72rem",
+                  fontWeight: "700",
+                  color: "#aaa",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.06em",
+                  marginBottom: "6px",
+                }}
+              >
+                % Gordura
+              </label>
+              <input
+                type="number"
+                step="0.1"
+                placeholder="Ex: 18.3"
+                value={novaAvaliacao.gordura}
+                onChange={(e) =>
+                  setNovaAvaliacao({
+                    ...novaAvaliacao,
+                    gordura: e.target.value,
+                  })
+                }
+                required
+                style={{
+                  width: "100%",
+                  padding: "10px 12px",
+                  borderRadius: "8px",
+                  border: "1px solid #e0e0e0",
+                  fontSize: "0.95rem",
+                  color: "#2c3e50",
+                  boxSizing: "border-box",
+                  outline: "none",
+                }}
+              />
+            </div>
+          </div>
+
+          {/* Linha separadora */}
+          <div
+            style={{
+              height: "1px",
+              backgroundColor: "#f5f5f5",
+              marginBottom: "20px",
+            }}
+          />
+
+          {/* Botão alinhado à direita */}
+          <div style={{ display: "flex", justifyContent: "flex-end" }}>
+            <button
+              type="submit"
+              style={{
+                padding: "10px 28px",
+                backgroundColor: "#4c546c",
+                color: "white",
+                border: "none",
+                borderRadius: "8px",
+                cursor: "pointer",
+                fontWeight: "700",
+                fontSize: "0.9rem",
+                letterSpacing: "0.03em",
+                transition: "opacity 0.2s",
+              }}
+              onMouseOver={(e) => (e.target.style.opacity = "0.85")}
+              onMouseOut={(e) => (e.target.style.opacity = "1")}
+            >
+              Salvar Evolução
+            </button>
+          </div>
         </form>
       </div>
 
