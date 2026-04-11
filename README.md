@@ -6,6 +6,7 @@
 
 ## 📋 Índice
 
+- [Preview](#-preview)
 - [Objetivo](#-objetivo)
 - [Como o Sistema Funciona (Visão do Usuário)](#️-como-o-sistema-funciona-visão-do-usuário)
 - [Tecnologias de Interface e Servidor Web](#-tecnologias-de-interface-e-servidor-web)
@@ -14,6 +15,22 @@
 - [API FatSecret](#-api-fatsecret)
 - [Estrutura do Projeto](#-estrutura-do-projeto)
 - [Instalação Local](#-instalação-local)
+
+## 🖼️ Fluxo de Exclusão de Paciente
+
+<div align="center">
+  <marquee behavior="scroll" direction="left" scrollamount="4">
+    <img src="project-nutrition/public/img/tela-pacientes.png" width="560" height="320" />
+    &nbsp;&nbsp;
+    <img src="project-nutrition/public/img/pesquisa-paciente.png" width="560" height="320" />
+    &nbsp;&nbsp;
+    <img src="project-nutrition/public/img/exclusao-paciente.png" width="560" height="320" />
+    &nbsp;&nbsp;
+    <img src="project-nutrition/public/img/apos-exclusao.png" width="560" height="320" />
+    &nbsp;&nbsp;
+    <img src="project-nutrition/public/img/check-exclusao.png" width="560" height="320" />
+  </marquee>
+</div>
 
 ## 🎯 Objetivo
 
@@ -99,19 +116,11 @@ project-nutrition/
 
 ## 🔧 Instalação Local
 
-<<<<<<< HEAD
-
-<p align="center">
-  <img src="project-nutrition/public/img/fluxograma-mvp3.png" alt="Fluxograma" />
-</p>
-## 📂 API FatSecret
-Para executar o projeto completo e fazer as buscas funcionarem na sua máquina local, é obrigatório realizar as configurações abaixo na sua API Back-End:
-=======
 1. **Acesse a pasta:**
+
    ```bash
    cd project-nutrition
    ```
->>>>>>> 7555b6b3c3d196a564eb428a1b443fd125d21cac
 
 2. Configure as variáveis de ambiente: Crie um arquivo .env na raiz do projeto com o seguinte conteúdo:
 
