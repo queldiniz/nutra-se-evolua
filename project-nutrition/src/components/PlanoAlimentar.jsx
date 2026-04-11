@@ -172,6 +172,53 @@ function PlanoAlimentar({ refeicoes, onExcluirAlimento }) {
                           )}
                         </tr>
                       ))}
+
+                      <tr style={{ borderTop: "2px solid #eee" }}>
+                        <td
+                          style={{
+                            padding: "12px 20px",
+                            fontWeight: "bold",
+                            color: "#2c3e50",
+                          }}
+                        >
+                          Total
+                        </td>
+                        <td
+                          style={{
+                            padding: "12px 20px",
+                            color: "#e67e22",
+                            fontWeight: "bold",
+                          }}
+                        >
+                          {comidasDestaRefeicao.reduce(
+                            (sum, c) => sum + c.calories,
+                            0,
+                          )}{" "}
+                          kcal
+                        </td>
+                        <td style={{ padding: "12px 20px" }}>
+                          {comidasDestaRefeicao.reduce(
+                            (sum, c) => sum + c.carbs,
+                            0,
+                          )}{" "}
+                          g
+                        </td>
+                        <td style={{ padding: "12px 20px" }}>
+                          {comidasDestaRefeicao.reduce(
+                            (sum, c) => sum + c.protein,
+                            0,
+                          )}{" "}
+                          g
+                        </td>
+                        <td style={{ padding: "12px 20px" }}>
+                          {comidasDestaRefeicao.reduce(
+                            (sum, c) => sum + c.fat,
+                            0,
+                          )}{" "}
+                          g
+                        </td>
+                        {showActions && <td style={{ padding: "12px 20px" }} />}
+                      </tr>
                     </tbody>
                   </table>
                 </div>
