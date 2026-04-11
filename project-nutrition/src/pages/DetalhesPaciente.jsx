@@ -634,10 +634,10 @@ function DetalhesPaciente() {
                     }}
                   >
                     <option value="">Selecione um objetivo</option>
-                    <option value="Emagrecimento (Secar)">
+                    <option value="Emagrecimento">
                       Emagrecimento (Secar)
                     </option>
-                    <option value="Hipertrofia (Ganhar Massa)">
+                    <option value="Hipertrofia">
                       Hipertrofia (Ganhar Massa)
                     </option>
                     <option value="Manutenção">Manutenção</option>
