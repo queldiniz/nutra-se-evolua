@@ -633,7 +633,7 @@ function DetalhesPaciente() {
                       backgroundColor: "white",
                     }}
                   >
-                    <option value="">Selecione um objetivo</option>
+                    <option value="" disabled>Selecione um objetivo</option>
                     <option value="Emagrecimento">
                       Emagrecimento (Secar)
                     </option>
