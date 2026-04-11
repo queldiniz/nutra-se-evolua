@@ -33,7 +33,7 @@ function GraficosEvolucao({ historico }) {
             textAlign: "center",
           }}
         >
-          Evolucao do Peso (kg)
+          Evolução do Peso (kg)
         </h3>
         {historico.length > 0 ? (
           <ResponsiveContainer width="100%" height={300}>
@@ -58,7 +58,7 @@ function GraficosEvolucao({ historico }) {
           </ResponsiveContainer>
         ) : (
           <p style={{ textAlign: "center", color: "#999" }}>
-            Adicione avaliacoes para gerar o grafico.
+            Adicione avaliações para gerar o grafico.
           </p>
         )}
       </div>
@@ -103,7 +103,7 @@ function GraficosEvolucao({ historico }) {
           </ResponsiveContainer>
         ) : (
           <p style={{ textAlign: "center", color: "#999" }}>
-            Adicione avaliacoes para gerar o grafico.
+            Adicione avaliações para gerar o grafico.
           </p>
         )}
       </div>
