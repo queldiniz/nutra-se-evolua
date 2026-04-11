@@ -9,7 +9,21 @@ import {
   Legend,
 } from "recharts";
 
+const MESES_ORDEM = [
+  "Jan", "Fev", "Mar", "Abr", "Mai", "Jun",
+  "Jul", "Ago", "Set", "Out", "Nov", "Dez",
+];
+
+function parseMesAno(valor) {
+  const [mes, ano] = String(valor).split("/");
+  return parseInt(ano, 10) * 12 + MESES_ORDEM.indexOf(mes);
+}
+
 function GraficosEvolucao({ historico }) {
+  const dadosOrdenados = [...(historico || [])].sort(
+    (a, b) => parseMesAno(a.data_registro) - parseMesAno(b.data_registro),
+  );
+
   return (
     <div
       style={{
@@ -35,10 +49,10 @@ function GraficosEvolucao({ historico }) {
         >
           Evolução do Peso (kg)
         </h3>
-        {historico.length > 0 ? (
+        {dadosOrdenados.length > 0 ? (
           <ResponsiveContainer width="100%" height={300}>
             <LineChart
-              data={historico}
+              data={dadosOrdenados}
               margin={{ top: 5, right: 20, bottom: 5, left: 0 }}
             >
               <CartesianGrid stroke="#eee" strokeDasharray="3 3" />
@@ -80,10 +94,10 @@ function GraficosEvolucao({ historico }) {
         >
           Percentual de Gordura (%)
         </h3>
-        {historico.length > 0 ? (
+        {dadosOrdenados.length > 0 ? (
           <ResponsiveContainer width="100%" height={300}>
             <LineChart
-              data={historico}
+              data={dadosOrdenados}
               margin={{ top: 5, right: 20, bottom: 5, left: 0 }}
             >
               <CartesianGrid stroke="#eee" strokeDasharray="3 3" />
