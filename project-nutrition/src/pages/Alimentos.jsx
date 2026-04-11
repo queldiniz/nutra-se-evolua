@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 
 function Alimentos() {
+  const [searchParams] = useSearchParams();
+
   const [pesquisa, setPesquisa] = useState("");
   const [resultados, setResultados] = useState([]);
   const [carregando, setCarregando] = useState(false);
@@ -8,7 +11,9 @@ function Alimentos() {
 
   // Estados dos pacientes e da refeição
   const [pacientes, setPacientes] = useState([]);
-  const [pacienteSelecionado, setPacienteSelecionado] = useState("");
+  const idPaciente = searchParams.get("paciente");
+  const [pacienteSelecionado, setPacienteSelecionado] = useState(idPaciente || "");
+
   const [refeicaoSelecionada, setRefeicaoSelecionada] =
     useState("Café da Manhã");
 

@@ -633,10 +633,13 @@ function DetalhesPaciente() {
                       backgroundColor: "white",
                     }}
                   >
-                    <option value="" disabled>Selecione um objetivo</option>
-                    <option value="Emagrecimento">
-                      Emagrecimento (Secar)
+                    <option
+                      value=""
+                      disabled
+                    >
+                      Selecione um objetivo
                     </option>
+                    <option value="Emagrecimento">Emagrecimento (Secar)</option>
                     <option value="Hipertrofia">
                       Hipertrofia (Ganhar Massa)
                     </option>
@@ -885,7 +888,10 @@ function DetalhesPaciente() {
                 </thead>
                 <tbody>
                   {shareLinks.map((link) => (
-                    <tr key={link.id} style={{ borderTop: "1px solid #eee" }}>
+                    <tr
+                      key={link.id}
+                      style={{ borderTop: "1px solid #eee" }}
+                    >
                       <td style={{ padding: "10px 15px", color: "#333" }}>
                         {link.label || "Sem rotulo"}
                       </td>
@@ -979,7 +985,7 @@ function DetalhesPaciente() {
         }}
       >
         <Link
-          to="/alimentos"
+          to={`/alimentos?paciente=${id}`}
           style={{
             backgroundColor: "#4285f4",
             color: "white",
